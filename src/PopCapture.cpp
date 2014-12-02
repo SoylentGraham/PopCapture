@@ -50,8 +50,30 @@ void TPopCapture::OnExit(TJobAndChannel& JobAndChannel)
 void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 {
 	TJobReply Reply( JobAndChannel );
+
+	Array<TVideoDeviceMeta> Metas;
+	mCoreVideo.GetDevices( GetArrayBridge(Metas) );
+
+	std::stringstream MetasString;
+	for ( int i=0;	i<Metas.GetSize();	i++ )
+	{
+		auto& Meta = Metas[i];
+		if ( i > 0 )
+			MetasString << ",";
+
+		MetasString << Meta.mName;
+		if ( Meta.mVideo )	MetasString << " +Video";
+		if ( Meta.mAudio )	MetasString << " +Audio";
+		if ( Meta.mText )	MetasString << " +Text";
+		if ( Meta.mClosedCaption )	MetasString << " +ClosedCaption";
+		if ( Meta.mSubtitle )	MetasString << " +Subtitle";
+		if ( Meta.mTimecode )	MetasString << " +Timecode";
+		if ( Meta.mTimedMetadata )	MetasString << " +TimedMetadata";
+		if ( Meta.mMetadata )	MetasString << " +Metadata";
+		if ( Meta.mMuxed )	MetasString << " +Muxed";
+	}
 	
-	Reply.mParams.AddDefaultParam("list devices here");
+	Reply.mParams.AddDefaultParam( MetasString.str() );
 
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );

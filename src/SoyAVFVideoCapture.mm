@@ -80,6 +80,40 @@ SoyVideoCapture::~SoyVideoCapture()
     Close();
 }
 
+void SoyVideoCapture::GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas)
+{
+	NSArray* Devices = [AVCaptureDevice devices];
+	
+	for (id Device in Devices)
+	{
+		auto& Meta = Metas.PushBack();
+		
+		//AVCaptureDevice* pDevice = Device;
+		NSString* Name = [Device localizedName];
+		Meta.mName = std::string([Name UTF8String]);
+		Meta.mVideo = YES == [Device hasMediaType:AVMediaTypeVideo];
+		Meta.mAudio = YES == [Device hasMediaType:AVMediaTypeAudio];
+		Meta.mText = YES == [Device hasMediaType:AVMediaTypeText];
+		Meta.mClosedCaption = YES == [Device hasMediaType:AVMediaTypeClosedCaption];
+		Meta.mSubtitle = YES == [Device hasMediaType:AVMediaTypeSubtitle];
+		Meta.mTimecode = YES == [Device hasMediaType:AVMediaTypeTimecode];
+//		Meta.mTimedMetadata = YES == [Device hasMediaType:AVMediaTypeTimedMetadata];
+		Meta.mMetadata = YES == [Device hasMediaType:AVMediaTypeMetadata];
+		Meta.mMuxed = YES == [Device hasMediaType:AVMediaTypeMuxed];
+			/*
+		connected
+		position
+	hasMediaType:
+		modelID
+		localizedName
+		manufacturer
+		uniqueID
+ */
+	}
+
+}
+
+
 void SoyVideoCapture::Open(Quality q, int deviceIndex)
 {
     this->deviceIndex = deviceIndex;

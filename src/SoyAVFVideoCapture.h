@@ -6,6 +6,38 @@
 class VideoCapturePIMPL;
 
 
+class TVideoDeviceMeta
+{
+public:
+	TVideoDeviceMeta() :
+		mVideo			( false ),
+		mAudio			( false ),
+		mText			( false ),
+		mClosedCaption	( false ),
+		mSubtitle		( false ),
+		mTimecode		( false ),
+		mTimedMetadata	( false ),
+		mMetadata		( false ),
+		mMuxed			( false )
+	{
+		Soy::Assert( !IsValid(), "expected invalid" );
+	}
+	
+	bool		IsValid() const		{	return !mName.empty();	}
+	
+public:
+	std::string	mName;
+	bool		mVideo;
+	bool		mAudio;
+	bool		mText;
+	bool		mClosedCaption;
+	bool		mSubtitle;
+	bool		mTimecode;
+	bool		mTimedMetadata;
+	bool		mMetadata;
+	bool		mMuxed;
+};
+
 class SoyVideoCapture //: public EventReceiver
 {
 public:
@@ -46,6 +78,8 @@ public:
 public:
     SoyVideoCapture();
     virtual ~SoyVideoCapture();
+	
+	void	GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas);
     
     // use deviceIndex == -1 to use default camera
     void Open(Quality quality = VideoCaptureQuality_Medium, int deviceIndex = -1);
