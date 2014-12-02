@@ -58,6 +58,11 @@
 		FB8A07131A2E6B880099596C /* TParameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A07111A2E6B880099596C /* TParameters.cpp */; };
 		FB8A07171A2E6BBF0099596C /* sha1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A07151A2E6BBF0099596C /* sha1.cpp */; };
 		FB8A071A1A2E6C3E0099596C /* PopCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A07181A2E6C3E0099596C /* PopCapture.cpp */; };
+		FBB328451A2E742E003DE7AA /* SoyAVFVideoCapture.mm in Sources */ = {isa = PBXBuildFile; fileRef = FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */; };
+		FBB328471A2E7591003DE7AA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328461A2E7591003DE7AA /* AVFoundation.framework */; };
+		FBB3284A1A2E75D4003DE7AA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328481A2E75D4003DE7AA /* CoreMedia.framework */; };
+		FBB3284B1A2E75D4003DE7AA /* CoreMediaIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328491A2E75D4003DE7AA /* CoreMediaIO.framework */; };
+		FBB3284D1A2E75EF003DE7AA /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -74,7 +79,7 @@
 
 /* Begin PBXFileReference section */
 		FB8A05931A2E54730099596C /* PopCapture */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PopCapture; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB8A059D1A2E54A30099596C /* PopCapture */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PopCapture; sourceTree = "<group>"; };
+		FB8A059D1A2E54A30099596C /* PopCapture */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PopCapture; sourceTree = "<group>"; };
 		FB8A05A61A2E57700099596C /* PopApp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PopApp.xcconfig; path = ../PopTrack/PopApp.xcconfig; sourceTree = "<group>"; };
 		FB8A06201A2E5A200099596C /* memheap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memheap.cpp; path = ../ofxSoylent/src/memheap.cpp; sourceTree = "<group>"; };
 		FB8A06231A2E5A7C0099596C /* SortArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SortArray.h; path = ../ofxSoylent/src/SortArray.h; sourceTree = "<group>"; };
@@ -188,6 +193,12 @@
 		FB8A07161A2E6BBF0099596C /* sha1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sha1.h; path = ../ofxSoylent/src/smallsha1/sha1.h; sourceTree = "<group>"; };
 		FB8A07181A2E6C3E0099596C /* PopCapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PopCapture.cpp; path = src/PopCapture.cpp; sourceTree = SOURCE_ROOT; };
 		FB8A07191A2E6C3E0099596C /* PopCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PopCapture.h; path = src/PopCapture.h; sourceTree = SOURCE_ROOT; };
+		FBB328431A2E742E003DE7AA /* SoyAVFVideoCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyAVFVideoCapture.h; path = src/SoyAVFVideoCapture.h; sourceTree = SOURCE_ROOT; };
+		FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SoyAVFVideoCapture.mm; path = src/SoyAVFVideoCapture.mm; sourceTree = SOURCE_ROOT; };
+		FBB328461A2E7591003DE7AA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		FBB328481A2E75D4003DE7AA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		FBB328491A2E75D4003DE7AA /* CoreMediaIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMediaIO.framework; path = System/Library/Frameworks/CoreMediaIO.framework; sourceTree = SDKROOT; };
+		FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +206,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBB3284D1A2E75EF003DE7AA /* CoreVideo.framework in Frameworks */,
+				FBB3284A1A2E75D4003DE7AA /* CoreMedia.framework in Frameworks */,
+				FBB3284B1A2E75D4003DE7AA /* CoreMediaIO.framework in Frameworks */,
+				FBB328471A2E7591003DE7AA /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -204,6 +219,10 @@
 		FB8A058A1A2E54730099596C = {
 			isa = PBXGroup;
 			children = (
+				FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */,
+				FBB328481A2E75D4003DE7AA /* CoreMedia.framework */,
+				FBB328491A2E75D4003DE7AA /* CoreMediaIO.framework */,
+				FBB328461A2E7591003DE7AA /* AVFoundation.framework */,
 				FB8A05A61A2E57700099596C /* PopApp.xcconfig */,
 				FB8A067B1A2E68C20099596C /* poplib */,
 				FB8A06221A2E5A280099596C /* soylib */,
@@ -224,6 +243,8 @@
 		FB8A05951A2E54730099596C /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FBB328431A2E742E003DE7AA /* SoyAVFVideoCapture.h */,
+				FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */,
 				FB8A07181A2E6C3E0099596C /* PopCapture.cpp */,
 				FB8A07191A2E6C3E0099596C /* PopCapture.h */,
 			);
@@ -446,6 +467,7 @@
 				FB8A06F91A2E6B520099596C /* TestReporter.cpp in Sources */,
 				FB8A06F11A2E6B520099596C /* DeferredTestResult.cpp in Sources */,
 				FB8A07131A2E6B880099596C /* TParameters.cpp in Sources */,
+				FBB328451A2E742E003DE7AA /* SoyAVFVideoCapture.mm in Sources */,
 				FB8A06801A2E69340099596C /* PopMain.cpp in Sources */,
 				FB8A06671A2E5A7C0099596C /* SoyTime.cpp in Sources */,
 				FB8A06ED1A2E6B520099596C /* AssertException.cpp in Sources */,

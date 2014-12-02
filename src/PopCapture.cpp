@@ -11,10 +11,19 @@
 
 
 
+
+void TVideoCapture::onVideoFrame(const FrameData& frame)
+{
+	std::Debug << "On new frame" << std::endl;
+}
+
+
+
 TPopCapture::TPopCapture() :
 	mRunning	( true )
 {
-
+	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
+	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );
 }
 
 void TPopCapture::AddChannel(std::shared_ptr<TChannel> Channel)
@@ -33,6 +42,17 @@ void TPopCapture::OnExit(TJobAndChannel& JobAndChannel)
 	//	should probably still send a reply
 	TJobReply Reply( JobAndChannel );
 	Reply.mParams.AddDefaultParam(std::string("exiting..."));
+	TChannel& Channel = JobAndChannel;
+	Channel.OnJobCompleted( Reply );
+}
+
+
+void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
+{
+	TJobReply Reply( JobAndChannel );
+	
+	Reply.mParams.AddDefaultParam("list devices here");
+
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
 }
