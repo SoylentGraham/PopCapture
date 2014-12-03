@@ -61,7 +61,7 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 		if ( i > 0 )
 			MetasString << ",";
 
-		MetasString << Meta.mName;
+		MetasString << Meta.mName << "[" << Meta.mSerial << "]";
 		if ( Meta.mVideo )	MetasString << " +Video";
 		if ( Meta.mAudio )	MetasString << " +Audio";
 		if ( Meta.mText )	MetasString << " +Text";

@@ -12,7 +12,7 @@
 	class VideoCapturePIMPL
 	{
 	public:
-		VideoCapturePIMPL(SoyVideoCapture* owner, SoyVideoCapture::Quality q);
+		VideoCapturePIMPL(SoyVideoCapture* owner,std::string Serial,SoyVideoCapture::Quality q);
 		~VideoCapturePIMPL();
 		
 		void handleSampleBuffer(CMSampleBufferRef);
@@ -27,6 +27,7 @@
 		void endConfiguration();
 		
 	private:
+		std::string	mSerial;
 		SoyVideoCapture* _owner;
 		VideoCaptureProxy* _proxy;
 		AVCaptureSession* _session;
@@ -71,7 +72,6 @@
 
 
 SoyVideoCapture::SoyVideoCapture()
-    : pimpl(nullptr), deviceIndex(-1)
 {
 }
 
@@ -88,9 +88,11 @@ void SoyVideoCapture::GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas)
 	{
 		auto& Meta = Metas.PushBack();
 		
-		//AVCaptureDevice* pDevice = Device;
-		NSString* Name = [Device localizedName];
-		Meta.mName = std::string([Name UTF8String]);
+		//AVCaptureDevice* Device = Device;
+		Meta.mName = std::string([[Device localizedName] UTF8String]);
+		Meta.mSerial = std::string([[Device uniqueID] UTF8String]);
+		Meta.mVendor = std::string([[Device manufacturer] UTF8String]);
+		Meta.mConnected = YES == [Device isConnected];
 		Meta.mVideo = YES == [Device hasMediaType:AVMediaTypeVideo];
 		Meta.mAudio = YES == [Device hasMediaType:AVMediaTypeAudio];
 		Meta.mText = YES == [Device hasMediaType:AVMediaTypeText];
@@ -114,28 +116,26 @@ void SoyVideoCapture::GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas)
 }
 
 
-void SoyVideoCapture::Open(Quality q, int deviceIndex)
+void SoyVideoCapture::Open(std::string Serial,Quality q)
 {
-    this->deviceIndex = deviceIndex;
- 
-    if (pimpl == nullptr)
-        pimpl = new VideoCapturePIMPL(this, q);
-    
-    pimpl->run();
+	std::shared_ptr<VideoCapturePIMPL> Device( new VideoCapturePIMPL( this, Serial, q ) );
+	mDevices.PushBack( Device );
+	Device->run();
 }
 
 void SoyVideoCapture::Close()
 {
-    if (pimpl != nullptr)
-    {
-        pimpl->stop();
-        delete pimpl;
-        pimpl = nullptr;
-    }
+	while ( !mDevices.IsEmpty() )
+	{
+		auto Device = mDevices.PopBack();
+		Device->stop();
+		Device.reset();
+	}
 }
 
 void SoyVideoCapture::setFlags(int flags)
 {
+	/*gr
 	if (flags)
 		pimpl->beginConfiguration();
 	
@@ -148,10 +148,12 @@ void SoyVideoCapture::setFlags(int flags)
 	
 	if (flags)
 		pimpl->endConfiguration();
+	 */
 }
 
 void SoyVideoCapture::removeFlags(int flags)
 {
+	/*gr
 	if (flags)
 		pimpl->beginConfiguration();
 	
@@ -164,6 +166,7 @@ void SoyVideoCapture::removeFlags(int flags)
 	
 	if (flags)
 		pimpl->endConfiguration();
+	 */
 }
 
 bool SoyVideoCapture::available()
@@ -171,8 +174,9 @@ bool SoyVideoCapture::available()
     return [[AVCaptureDevice devices] count] > 0;
 }
 
-VideoCapturePIMPL::VideoCapturePIMPL(SoyVideoCapture* owner, SoyVideoCapture::Quality q) :
-_owner(owner)
+VideoCapturePIMPL::VideoCapturePIMPL(SoyVideoCapture* owner,std::string Serial,SoyVideoCapture::Quality q) :
+	_owner	( owner ),
+	mSerial	( Serial )
 {
 	NSArray* devices = [AVCaptureDevice devices];
     if ([devices count] == 0) return;
@@ -191,9 +195,11 @@ _owner(owner)
 	NSError* error = nil;
     
     // Find a suitable AVCaptureDevice
-    AVCaptureDevice *device = owner->deviceIndex == -1 ?
-                                [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo] : [devices objectAtIndex:owner->deviceIndex];
-    
+	NSString* SerialString = [NSString stringWithCString:Serial.c_str()
+												encoding:[NSString defaultCStringEncoding]];
+    AVCaptureDevice *device = [AVCaptureDevice deviceWithUniqueID:SerialString];
+	
+	
 	AVCaptureDeviceInput* _input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
 	if (_input && [_session canAddInput:_input])
 		[_session addInput:_input];

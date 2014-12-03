@@ -2,6 +2,7 @@
 
 
 #include <array.hpp>
+#include <heaparray.hpp>
 
 class VideoCapturePIMPL;
 
@@ -27,6 +28,10 @@ public:
 	
 public:
 	std::string	mName;
+	std::string	mModel;
+	std::string	mVendor;
+	std::string	mSerial;
+	bool		mConnected;
 	bool		mVideo;
 	bool		mAudio;
 	bool		mText;
@@ -82,7 +87,7 @@ public:
 	void	GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas);
     
     // use deviceIndex == -1 to use default camera
-    void Open(Quality quality = VideoCaptureQuality_Medium, int deviceIndex = -1);
+	void Open(std::string Serial,Quality quality = VideoCaptureQuality_Medium);
     void Close();
     
     void setFlags(int flag);
@@ -92,7 +97,6 @@ public:
     
 private:
     friend class VideoCapturePIMPL;
-    VideoCapturePIMPL* pimpl;
-    int deviceIndex;
+	Array<std::shared_ptr<VideoCapturePIMPL>> mDevices;
 };
 
