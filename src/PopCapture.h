@@ -25,6 +25,7 @@ public:
 
 	void			OnListDevices(TJobAndChannel& JobAndChannel);
 	void			OnExit(TJobAndChannel& JobAndChannel);
+	void			GetFrame(TJobAndChannel& JobAndChannel);
 
 public:
 	std::vector<std::shared_ptr<TChannel>>		mChannels;

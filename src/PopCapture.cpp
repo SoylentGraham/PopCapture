@@ -24,6 +24,11 @@ TPopCapture::TPopCapture() :
 {
 	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
 	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );
+
+	TParameterTraits GetFrameTraits;
+	GetFrameTraits.mAssumedKeys.PushBack("serial");
+	AddJobHandler("getframe", GetFrameTraits, *this, &TPopCapture::GetFrame );
+
 }
 
 void TPopCapture::AddChannel(std::shared_ptr<TChannel> Channel)
@@ -79,6 +84,33 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 	Channel.OnJobCompleted( Reply );
 }
 
+void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
+{
+	const TJob& Job = JobAndChannel;
+	TJobReply Reply( JobAndChannel );
+	
+	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
+
+	std::stringstream Error;
+	auto Device = mCoreVideo.GetDevice( Serial, Error );
+	
+	if ( !Device )
+	{
+		std::stringstream ReplyError;
+		ReplyError << "Device " << Serial << " not found " << Error.str();
+		Reply.mParams.AddErrorParam( ReplyError.str() );
+		TChannel& Channel = JobAndChannel;
+		Channel.OnJobCompleted( Reply );
+		return;
+	}
+	
+	//	grab pixels
+	auto LastFrame = Device->GetLastFrame();
+	Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+	TChannel& Channel = JobAndChannel;
+	Channel.OnJobCompleted( Reply );
+	
+}
 
 
 class TChannelLiteral : public TChannel
