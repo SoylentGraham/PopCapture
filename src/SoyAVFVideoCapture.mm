@@ -26,10 +26,12 @@ NSString* Soy::StringToNSString(const std::string& String)
 
 TVideoDeviceMeta GetDeviceMeta(AVCaptureDevice* Device)
 {
-	TVideoDeviceMeta Meta;
-	if ( !Soy::Assert( Device, "Device expected") )
-		return Meta;
+	//	gr: allow this for failed-to-init devices
+	if ( !Device )
+//	if ( !Soy::Assert( Device, "Device expected") )
+		return TVideoDeviceMeta();
 	
+	TVideoDeviceMeta Meta;
 	Meta.mName = std::string([[Device localizedName] UTF8String]);
 	Meta.mSerial = std::string([[Device uniqueID] UTF8String]);
 	Meta.mVendor = std::string([[Device manufacturer] UTF8String]);
@@ -225,6 +227,14 @@ std::shared_ptr<TVideoDevice> SoyVideoCapture::GetDevice(std::string Serial,std:
 	//	create new device
 	//	gr: todo: work out which type this is (from it's GetDevices list?)
 	std::shared_ptr<TVideoDevice_AvFoundation> Device( new TVideoDevice_AvFoundation( Serial, Error ) );
+
+	//	gr: require meta to be valid immediately, otherwise we assume the device failed to be created
+	if ( !Device->GetMeta().IsValid() )
+	{
+		std::Debug << "Failed to initialise device " << Serial << std::endl;
+		return nullptr;
+	}
+	
 	mDevices.PushBack( Device );
 	return Device;
 }
@@ -232,7 +242,8 @@ std::shared_ptr<TVideoDevice> SoyVideoCapture::GetDevice(std::string Serial,std:
 
 TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(std::string Serial,std::stringstream& Error) :
 	TVideoDevice				( Serial, Error ),
-	mConfigurationStackCounter	( 0 )
+	mConfigurationStackCounter	( 0 ),
+	mWrapper					( new AVCaptureSessionWrapper(*this) )
 {
 	run( Serial, TVideoQuality::High, Error );
 }
