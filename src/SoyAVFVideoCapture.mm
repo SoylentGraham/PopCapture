@@ -133,7 +133,9 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 	int ChannelCount = rowSize / Width;
 	
 	SoyPixels Pixels;
-	auto Format = SoyPixelsFormat::GetFormatFromChannelCount( ChannelCount );
+	
+	//	gr: find this out! but currently, 4 channels from built in camera gives us BGRA (not sure what alpha is)
+	auto Format = (ChannelCount ==4) ? SoyPixelsFormat::BGRA : SoyPixelsFormat::GetFormatFromChannelCount( ChannelCount );
 	if ( !Pixels.Init( Width, Height, Format ) )
 	{
 		std::Debug << "AVCapture failed to create pixels " << Width << "x" << Height << " as " << Format << std::endl;
