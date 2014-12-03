@@ -3,8 +3,10 @@
 
 #include <array.hpp>
 #include <heaparray.hpp>
+#include <SoyEvent.h>
+#include <SoyPixels.h>
+#include <SoyTime.h>
 
-class VideoCapturePIMPL;
 
 
 class TVideoDeviceMeta
@@ -25,6 +27,7 @@ public:
 	}
 	
 	bool		IsValid() const		{	return !mName.empty();	}
+	bool		operator==(const std::string& Serial) const	{	return mSerial == Serial;	}
 	
 public:
 	std::string	mName;
@@ -42,6 +45,100 @@ public:
 	bool		mMetadata;
 	bool		mMuxed;
 };
+
+namespace TVideoQuality
+{
+	enum Type
+	{
+		Low,
+		Medium,
+		High,
+	};
+}
+namespace TVideoOption
+{
+	enum Type
+	{
+		LockedFocus,
+		LockedWhiteBalance,
+		LockedExposure,
+	};
+}
+
+//	seperate type for meta so we can have timecode
+class TVideoFrame
+{
+public:
+	bool			IsValid() const		{	return mPixels.IsValid();	}
+
+public:
+	SoyPixels		mPixels;
+	SoyTime			mTimecode;
+};
+
+
+//	gr: currently RAII so no play/pause virtuals...
+class TVideoDevice
+{
+public:
+	TVideoDevice(std::string Serial,std::stringstream& Error);
+	virtual ~TVideoDevice();
+	
+	virtual TVideoDeviceMeta	GetMeta() const=0;		//	gr: make this dynamic so other states might change
+	std::string					GetSerial() const		{	return GetMeta().mSerial;	}
+	const TVideoFrame&			GetLastFrame() const	{	return mLastFrame;	}
+	
+	//	gr: might need to report if supported
+	virtual bool				GetOption(TVideoOption::Type Option,bool Default=false)	{	return Default;	}
+	virtual bool				SetOption(TVideoOption::Type Option,bool Enable)		{	return false;	}
+	
+	bool						operator==(const std::string& Serial) const				{	return GetMeta() == Serial;	}
+	
+protected:
+	void						OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode);
+	
+public:
+	SoyEvent<const TVideoFrame>	mOnNewFrame;
+	
+private:
+	TVideoFrame					mLastFrame;		//	todo: lock this
+};
+
+
+class AVCaptureSessionWrapper;
+
+class TVideoDevice_AvFoundation : public TVideoDevice
+{
+public:
+	friend class AVCaptureSessionWrapper;
+	static void					GetDevices(ArrayBridge<TVideoDeviceMeta>& Metas);
+	
+public:
+	TVideoDevice_AvFoundation(std::string Serial,std::stringstream& Error);
+	virtual ~TVideoDevice_AvFoundation();
+
+	virtual TVideoDeviceMeta	GetMeta() const override;		//	gr: make this dynamic so other states might change
+
+	virtual bool				GetOption(TVideoOption::Type Option,bool Default=false) override;
+	virtual bool				SetOption(TVideoOption::Type Option,bool Enable) override;
+
+private:
+	bool setFocusLocked(bool Enable);
+	bool setWhiteBalanceLocked(bool Enable);
+	bool setExposureLocked(bool Enable);
+
+	bool						BeginConfiguration();
+	bool						EndConfiguration();
+	bool	run(const std::string& Serial,TVideoQuality::Type Quality,std::stringstream& Error);
+
+	bool	Play();
+	void	Pause();
+	
+public:
+	std::shared_ptr<AVCaptureSessionWrapper>	mWrapper;
+	int							mConfigurationStackCounter;
+};
+
 
 class SoyVideoCapture //: public EventReceiver
 {
@@ -76,27 +173,16 @@ public:
         VideoCaptureQuality_Medium,
         VideoCaptureQuality_High
     };
-
-    
-    static bool available();
-    
+	
 public:
     SoyVideoCapture();
     virtual ~SoyVideoCapture();
 	
-	void	GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas);
-    
-    // use deviceIndex == -1 to use default camera
-	void Open(std::string Serial,Quality quality = VideoCaptureQuality_Medium);
-    void Close();
-    
-    void setFlags(int flag);
-    void removeFlags(int flag);
-    
-    virtual void onVideoFrame(const FrameData& frame) = 0;
-    
+	std::shared_ptr<TVideoDevice>	GetDevice(std::string Serial,std::stringstream& Error);
+	void							GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas);
+	void							CloseDevice(std::string Serial);
+	
 private:
-    friend class VideoCapturePIMPL;
-	Array<std::shared_ptr<VideoCapturePIMPL>> mDevices;
+	Array<std::shared_ptr<TVideoDevice>> mDevices;
 };
 
