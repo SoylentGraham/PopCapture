@@ -132,6 +132,11 @@ public:
 	{
 	}
 	
+	virtual void				GetClients(ArrayBridge<SoyRef>&& Clients)
+	{
+
+	}
+	
 	bool				FixParamFormat(TJobParam& Param,std::stringstream& Error)
 	{
 		return true;
