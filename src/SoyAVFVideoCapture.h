@@ -87,6 +87,9 @@ public:
 	virtual TVideoDeviceMeta	GetMeta() const=0;		//	gr: make this dynamic so other states might change
 	std::string					GetSerial() const		{	return GetMeta().mSerial;	}
 	const TVideoFrame&			GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
+	float						GetFps() const;			//	how many frames per sec are we averaging?
+	int							GetFrameMs() const;		//	how long does each frame take to recieve
+	void						ResetFrameCounter();	//	reset the fps counter
 	
 	//	gr: might need to report if supported
 	virtual bool				GetOption(TVideoOption::Type Option,bool Default=false)	{	return Default;	}
@@ -105,7 +108,13 @@ private:
 	//	gr: video frame can cope without a lock,(no realloc) but the string will probably crash
 	std::string					mLastError;		//	should be empty if last frame was okay
 	TVideoFrame					mLastFrame;
+
+	//	fps counting
+	SoyTime						mFirstFrameTime;	//	time we got first frame
+	SoyTime						mLastFrameTime;
+	uint64						mFrameCount;
 };
+
 
 
 class AVCaptureSessionWrapper;

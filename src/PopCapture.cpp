@@ -112,6 +112,12 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	if ( !Error.str().empty() )
 		Reply.mParams.AddErrorParam( Error.str() );
 
+	//	add other stats
+	auto FrameRate = Device->GetFps();
+	auto FrameMs = Device->GetFrameMs();
+	Reply.mParams.AddParam("fps", FrameRate);
+	Reply.mParams.AddParam("framems", FrameMs );
+	
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
 	

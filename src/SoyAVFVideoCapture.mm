@@ -60,12 +60,42 @@ TVideoDeviceMeta GetDeviceMeta(AVCaptureDevice* Device)
 
 
 TVideoDevice::TVideoDevice(std::string Serial,std::stringstream& Error) :
-	mLastError	( "waiting for first frame" )
+	mLastError		( "waiting for first frame" ),
+	mFrameCount		( 0 )
 {
 }
 
 TVideoDevice::~TVideoDevice()
 {
+}
+
+float TVideoDevice::GetFps() const
+{
+	uint64 TotalMs = mLastFrameTime.GetTime() - mFirstFrameTime.GetTime();
+	if ( TotalMs == 0 )
+		return 0.f;
+	
+	float TotalSecs = TotalMs / 1000.f;
+	return mFrameCount / TotalSecs;
+}
+
+int TVideoDevice::GetFrameMs() const
+{
+	uint64 TotalMs = mLastFrameTime.GetTime() - mFirstFrameTime.GetTime();
+	if ( TotalMs == 0 )
+		return 0;
+	uint64 AverageMs = TotalMs / mFrameCount;
+	//	cast, this shouldn't be massive
+	if ( !Soy::Assert( AverageMs < 0xffffffff, "very large avergage ms" ) )
+		return -1;
+	return static_cast<int>(AverageMs);
+}
+
+void TVideoDevice::ResetFrameCounter()
+{
+	mLastFrameTime = SoyTime();
+	mFirstFrameTime = SoyTime();
+	mFrameCount = 0;
 }
 
 
@@ -76,14 +106,18 @@ void TVideoDevice::OnFailedFrame(const std::string &Error)
 
 void TVideoDevice::OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode)
 {
-	//	no error!
 	mLastError.clear();
 	
-	//	lock!
 	mLastFrame.mPixels.Copy( Pixels );
 
 	//	gr: might want to reject earlier timecodes here
 	mLastFrame.mTimecode = Timecode;
+	
+	//	update frame/rate counting
+	mFrameCount++;
+	mLastFrameTime = SoyTime(true);
+	if ( !mFirstFrameTime.IsValid() )
+		mFirstFrameTime = mLastFrameTime;
 	
 	mOnNewFrame.OnTriggered( mLastFrame );
 }
