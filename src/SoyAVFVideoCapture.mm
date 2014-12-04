@@ -411,7 +411,7 @@ std::shared_ptr<TVideoDevice> SoyVideoCapture::GetDevice(std::string Serial,std:
 	//	create new device
 	//	gr: todo: work out which type this is (from different type's list?)
 	std::stringstream InitError;
-	std::shared_ptr<TVideoDevice_AvFoundation> Device( new TVideoDevice_AvFoundation( Serial, InitError ) );
+	std::shared_ptr<TVideoDevice_AvFoundation> Device( new TVideoDevice_AvFoundation( Meta.mSerial, InitError ) );
 
 	//	gr: require meta to be valid immediately, otherwise we assume the device failed to be created
 	if ( !Device->GetMeta().IsValid() )
@@ -440,7 +440,7 @@ TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(std::string Serial,std::str
 
 TVideoDevice_AvFoundation::~TVideoDevice_AvFoundation()
 {
-	pause();
+	Pause();
 }
 
 NSString* GetAVCaptureSessionQuality(TVideoQuality::Type Quality)
