@@ -258,7 +258,9 @@ TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(std::string Serial,std::str
 	mConfigurationStackCounter	( 0 ),
 	mWrapper					( new AVCaptureSessionWrapper(*this) )
 {
-	run( Serial, TVideoQuality::High, Error );
+	run( Serial, TVideoQuality::Low, Error );
+	if ( !Error.str().empty() )
+		OnFailedFrame( Error.str() );
 }
 
 TVideoDevice_AvFoundation::~TVideoDevice_AvFoundation()
