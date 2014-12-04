@@ -12,7 +12,9 @@
 class TVideoDeviceMeta
 {
 public:
-	TVideoDeviceMeta() :
+	TVideoDeviceMeta(const std::string& Serial="",const std::string& Name="") :
+		mSerial			( Serial ),
+		mName			( Name ),
 		mVideo			( false ),
 		mAudio			( false ),
 		mText			( false ),
@@ -23,11 +25,11 @@ public:
 		mMetadata		( false ),
 		mMuxed			( false )
 	{
-		Soy::Assert( !IsValid(), "expected invalid" );
+		//Soy::Assert( !IsValid(), "expected invalid" );
 	}
 	
-	bool		IsValid() const		{	return !mName.empty();	}
-	bool		operator==(const std::string& Serial) const	{	return mSerial == Serial;	}
+	bool		IsValid() const		{	return !mSerial.empty();	}
+	bool		operator==(const std::string& SerialOrName) const;
 	
 public:
 	std::string	mName;
@@ -192,7 +194,10 @@ public:
 	
 	std::shared_ptr<TVideoDevice>	GetDevice(std::string Serial,std::stringstream& Error);
 	void							GetDevices(ArrayBridge<TVideoDeviceMeta>&& Metas);
+	TVideoDeviceMeta				GetDeviceMeta(std::string Serial);
 	void							CloseDevice(std::string Serial);
+
+	static TVideoDeviceMeta			GetBestDeviceMeta(std::string Serial,ArrayBridge<TVideoDeviceMeta>&& Metas);	//	gr: abstracted to static so we can use it in a unit test
 	
 private:
 	Array<std::shared_ptr<TVideoDevice>> mDevices;
