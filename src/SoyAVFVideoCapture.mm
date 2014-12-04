@@ -4,7 +4,7 @@
 #import <AVFoundation/AVFoundation.h>
 //#import <Accelerate/Accelerate.h>
 #include <SoyDebug.h>
-
+#include <SoyScope.h>
 
 
 namespace Soy
@@ -59,7 +59,8 @@ TVideoDeviceMeta GetDeviceMeta(AVCaptureDevice* Device)
 }
 
 
-TVideoDevice::TVideoDevice(std::string Serial,std::stringstream& Error)
+TVideoDevice::TVideoDevice(std::string Serial,std::stringstream& Error) :
+	mLastError	( "waiting for first frame" )
 {
 }
 
@@ -67,8 +68,17 @@ TVideoDevice::~TVideoDevice()
 {
 }
 
+
+void TVideoDevice::OnFailedFrame(const std::string &Error)
+{
+	mLastError = Error;
+}
+
 void TVideoDevice::OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode)
 {
+	//	no error!
+	mLastError.clear();
+	
 	//	lock!
 	mLastFrame.mPixels.Copy( Pixels );
 
@@ -114,11 +124,12 @@ public:
 void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 {
 	CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+	//	auto unlock
+	//	gr: old code called this even when it failed... so include before the lock...
+	auto ScopeUnlock = SoyScopeSimple( []{}, [&imageBuffer]{ CVPixelBufferUnlockBaseAddress(imageBuffer, 0); } );
 	if (CVPixelBufferLockBaseAddress(imageBuffer, 0) != kCVReturnSuccess)
 	{
-		//	unlock needed?
-		CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
-		std::Debug << "failed to lock new sample buffer";
+		mParent.OnFailedFrame("failed to lock new sample buffer");
 		return;
 	}
 
@@ -138,14 +149,14 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 	auto Format = (ChannelCount ==4) ? SoyPixelsFormat::BGRA : SoyPixelsFormat::GetFormatFromChannelCount( ChannelCount );
 	if ( !Pixels.Init( Width, Height, Format ) )
 	{
-		std::Debug << "AVCapture failed to create pixels " << Width << "x" << Height << " as " << Format << std::endl;
-		CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
+		std::stringstream Error;
+		Error << "AVCapture failed to create pixels " << Width << "x" << Height << " as " << Format;
+		mParent.OnFailedFrame( Error.str() );
 		return;
 	}
+
 	Pixels.GetPixelsArray().Copy( DataArray );
-	
 	mParent.OnNewFrame( Pixels, SoyTime() );
-	CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 }
 
 
@@ -254,26 +265,6 @@ TVideoDevice_AvFoundation::~TVideoDevice_AvFoundation()
 {
 	pause();
 }
-
-//	run lamba
-template<class ENTER_FUNCTION,class EXIT_FUNCTION>
-class TScope
-{
-public:
-	TScope(ENTER_FUNCTION EnterFunc,EXIT_FUNCTION ExitFunc) :
-		mExitFunc		( ExitFunc )
-	{
-		EnterFunc();
-	}
-	~TScope()
-	{
-		mExitFunc();
-	}
-	
-	EXIT_FUNCTION	mExitFunc;
-};
-
-
 
 NSString* GetAVCaptureSessionQuality(TVideoQuality::Type Quality)
 {

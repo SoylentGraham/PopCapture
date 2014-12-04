@@ -105,8 +105,13 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	}
 	
 	//	grab pixels
-	auto LastFrame = Device->GetLastFrame();
+	auto LastFrame = Device->GetLastFrame( Error );
 	Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+
+	//	add error if present (last frame could be out of date)
+	if ( !Error.str().empty() )
+		Reply.mParams.AddErrorParam( Error.str() );
+
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
 	

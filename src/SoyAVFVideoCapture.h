@@ -86,7 +86,7 @@ public:
 	
 	virtual TVideoDeviceMeta	GetMeta() const=0;		//	gr: make this dynamic so other states might change
 	std::string					GetSerial() const		{	return GetMeta().mSerial;	}
-	const TVideoFrame&			GetLastFrame() const	{	return mLastFrame;	}
+	const TVideoFrame&			GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
 	
 	//	gr: might need to report if supported
 	virtual bool				GetOption(TVideoOption::Type Option,bool Default=false)	{	return Default;	}
@@ -95,13 +95,16 @@ public:
 	bool						operator==(const std::string& Serial) const				{	return GetMeta() == Serial;	}
 	
 protected:
+	void						OnFailedFrame(const std::string& Error);
 	void						OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode);
 	
 public:
 	SoyEvent<const TVideoFrame>	mOnNewFrame;
 	
 private:
-	TVideoFrame					mLastFrame;		//	todo: lock this
+	//	gr: video frame can cope without a lock,(no realloc) but the string will probably crash
+	std::string					mLastError;		//	should be empty if last frame was okay
+	TVideoFrame					mLastFrame;
 };
 
 
