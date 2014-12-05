@@ -10,7 +10,16 @@
 #include <SoyString.h>
 
 
-
+std::shared_ptr<TChannel> TChannelManager::GetChannel(SoyRef ChannelRef)
+{
+	for ( auto it=mChannels.begin();	it!=mChannels.end();	it++ )
+	{
+		auto pChannel = *it;
+		if ( pChannel->GetChannelRef() == ChannelRef )
+			return pChannel;
+	}
+	return nullptr;
+}
 
 void TChannelManager::AddChannel(std::shared_ptr<TChannel> Channel)
 {
@@ -21,7 +30,8 @@ void TChannelManager::AddChannel(std::shared_ptr<TChannel> Channel)
 
 
 TPopCapture::TPopCapture() :
-	mRunning	( true )
+	mRunning			( true ),
+	mSubcriberManager	( *this )
 {
 	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
 	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );

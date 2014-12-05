@@ -12,8 +12,9 @@ class TChannel;
 class TChannelManager
 {
 public:
-	virtual void	AddChannel(std::shared_ptr<TChannel> Channel);
-
+	virtual void				AddChannel(std::shared_ptr<TChannel> Channel);
+	std::shared_ptr<TChannel>	GetChannel(SoyRef Channel);
+	
 public:
 	std::vector<std::shared_ptr<TChannel>>		mChannels;
 };

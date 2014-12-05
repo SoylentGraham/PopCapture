@@ -4,6 +4,8 @@
 
 
 class TChannel;
+class TSubscriberManager;
+class TChannelManager;
 
 
 //	event triggered
@@ -21,16 +23,23 @@ public:
 class TEventSubscriptionManager
 {
 public:
-	TEventSubscriptionManager(std::string EventName) :
-		mEventName		( EventName )
+	TEventSubscriptionManager(std::string EventName,TSubscriberManager& Parent) :
+		mEventName		( EventName ),
+		mParent			( Parent )
 	{
 	}
 
 	virtual bool			AddSubscriber(TJobChannelMeta Client,std::stringstream& Error)=0;
+
+protected:
+	bool					SendSubscriptionJob(TJob& Job,TJobChannelMeta Client );
 	
 protected:
 	std::string				mEventName;	//	"subscribe me to <eventname>"
 	ofMutexT<Array<TEventSubscriptionManager>>	mEventClients;
+
+private:
+	TSubscriberManager&		mParent;
 };
 
 
@@ -38,8 +47,8 @@ template<typename EVENTPARAM>
 class TEventSubscriptionManager_Instance : public TEventSubscriptionManager
 {
 public:
-	TEventSubscriptionManager_Instance(SoyEvent<EVENTPARAM>& Event,std::string EventName) :
-		TEventSubscriptionManager	( EventName ),
+	TEventSubscriptionManager_Instance(SoyEvent<EVENTPARAM>& Event,std::string EventName,TSubscriberManager& Parent) :
+		TEventSubscriptionManager	( EventName, Parent ),
 		mEvent						( Event )
 	{
 	}
@@ -49,26 +58,35 @@ public:
 	
 public:
 	SoyEvent<EVENTPARAM>&	mEvent;
+	
+private:
+	Array<std::tuple<TJobChannelMeta,std::function<void(EVENTPARAM&)>>>	mSubscriberCallbacks;	//	list of callbacks to clean up if we unsubscribe
 };
 
 
 class TSubscriberManager
 {
 public:
+	TSubscriberManager(TChannelManager& ChannelManager) :
+		mChannelManager	( ChannelManager )
+	{
+	}
+	
 	template<typename EVENTPARAM>
 	std::shared_ptr<TEventSubscriptionManager>	AddEvent(SoyEvent<EVENTPARAM>& Event,std::string EventName,std::stringstream& Error)
 	{
 		//	todo: check if this already exists!
-		std::shared_ptr<TEventSubscriptionManager> EventSubscriber( new TEventSubscriptionManager_Instance<EVENTPARAM>( Event, EventName ) );
+		std::shared_ptr<TEventSubscriptionManager> EventSubscriber( new TEventSubscriptionManager_Instance<EVENTPARAM>( Event, EventName, *this ) );
 		mEvents.PushBack( EventSubscriber );
 		return EventSubscriber;
 	}
 
-	bool			AddSubscriber(std::string EventName,TJobChannelMeta Client,std::stringstream& Error);
-
+	bool						AddSubscriber(std::string EventName,TJobChannelMeta Client,std::stringstream& Error);
+	std::shared_ptr<TChannel>	GetChannel(SoyRef Channel);
 
 public:
 	Array<std::shared_ptr<TEventSubscriptionManager>>	mEvents;
+	TChannelManager&			mChannelManager;
 };
 
 //	does the job handler for you
@@ -91,16 +109,27 @@ template<typename EVENTPARAM>
 inline bool TEventSubscriptionManager_Instance<EVENTPARAM>::AddSubscriber(TJobChannelMeta Client,std::stringstream& Error)
 {
 	//	make a lambda to recieve the event
-	auto Callback = [Client](EVENTPARAM& Value)
+	std::function<void(EVENTPARAM&)> ListenerCallback = [this,Client](EVENTPARAM& Value)
 	{
 		TJob OutputJob;
 		
 		OutputJob.mParams.AddDefaultParam( Value );
 		
 		//	find channel, send to Client
-		std::Debug << "Got event callback to send to " << Client << std::endl;
+	//	std::Debug << "Got event callback to send to " << Client << std::endl;
+		
+		if ( !this->SendSubscriptionJob( OutputJob, Client ) )
+		{
+			//	unsubscibe on failure!
+		}
 	};
-	mEvent.AddListener( Callback );
+	
+	//	add to listeners we need to remove when unsubscribing
+	//	gr: maybe map, but I guess it's possible to have ONE client subscrube to this event multiple times...
+	mSubscriberCallbacks.PushBack( std::make_tuple(Client,ListenerCallback) );
+
+	//	subscribe this lambda to the event
+	mEvent.AddListener( ListenerCallback );
 	return true;
 }
 
