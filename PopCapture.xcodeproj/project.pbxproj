@@ -202,6 +202,7 @@
 		FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FBC3A0DF1A308648009DA49E /* SoyScope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoyScope.cpp; path = ../ofxSoylent/src/SoyScope.cpp; sourceTree = "<group>"; };
 		FBC3A0E01A308648009DA49E /* SoyScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyScope.h; path = ../ofxSoylent/src/SoyScope.h; sourceTree = "<group>"; };
+		FBC3A0E21A32656F009DA49E /* TJobEventSubscriber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TJobEventSubscriber.h; path = src/TJobEventSubscriber.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -248,6 +249,7 @@
 			children = (
 				FBB328431A2E742E003DE7AA /* SoyAVFVideoCapture.h */,
 				FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */,
+				FBC3A0E21A32656F009DA49E /* TJobEventSubscriber.h */,
 				FB8A07181A2E6C3E0099596C /* PopCapture.cpp */,
 				FB8A07191A2E6C3E0099596C /* PopCapture.h */,
 			);

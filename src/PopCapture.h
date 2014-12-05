@@ -3,28 +3,42 @@
 #include <SoyApp.h>
 #include <TJob.h>
 #include "SoyAVFVideoCapture.h"
-
+#include "TJobEventSubscriber.h"
 
 class TChannel;
 
 
-class TPopCapture : public SoyApp, public TJobHandler
+
+class TChannelManager
+{
+public:
+	virtual void	AddChannel(std::shared_ptr<TChannel> Channel);
+
+public:
+	std::vector<std::shared_ptr<TChannel>>		mChannels;
+};
+
+
+class TPopCapture : public SoyApp, public TJobHandler, public TChannelManager
 {
 public:
 	TPopCapture();
 	
-	void			AddChannel(std::shared_ptr<TChannel> Channel);
+	virtual void	AddChannel(std::shared_ptr<TChannel> Channel) override;
 	virtual bool	Update()	{	return mRunning;	}
 
 	void			OnListDevices(TJobAndChannel& JobAndChannel);
 	void			OnExit(TJobAndChannel& JobAndChannel);
 	void			GetFrame(TJobAndChannel& JobAndChannel);
-
-public:
-	std::vector<std::shared_ptr<TChannel>>		mChannels;
-
-	bool			mRunning;
+	void			SubscribeNewFrame(TJobAndChannel& JobAndChannel);
 	
-	SoyVideoCapture	mCoreVideo;
+public:
+	
+	bool				mRunning;
+	
+	SoyVideoCapture		mCoreVideo;
+	TSubscriberManager	mSubcriberManager;
 };
+
+
 

@@ -11,6 +11,15 @@
 
 
 
+
+void TChannelManager::AddChannel(std::shared_ptr<TChannel> Channel)
+{
+	if ( !Channel )
+		return;
+	mChannels.push_back( Channel );
+}
+
+
 TPopCapture::TPopCapture() :
 	mRunning	( true )
 {
@@ -21,13 +30,19 @@ TPopCapture::TPopCapture() :
 	GetFrameTraits.mAssumedKeys.PushBack("serial");
 	AddJobHandler("getframe", GetFrameTraits, *this, &TPopCapture::GetFrame );
 
+	//	we need extra params for this subscription to say WHICH device we want to subscribe to
+	//	we create the new subscriptions
+	TParameterTraits SubscribeNewFrameTraits;
+	SubscribeNewFrameTraits.mAssumedKeys.PushBack("serial");
+	SubscribeNewFrameTraits.mDefaultParams.PushBack( std::make_tuple(std::string("command"),std::string("newframe")) );
+	AddJobHandler("subscribenewframe", SubscribeNewFrameTraits, *this, &TPopCapture::SubscribeNewFrame );
 }
 
 void TPopCapture::AddChannel(std::shared_ptr<TChannel> Channel)
 {
+	TChannelManager::AddChannel( Channel );
 	if ( !Channel )
 		return;
-	mChannels.push_back( Channel );
 	TJobHandler::BindToChannel( *Channel );
 }
 
@@ -114,6 +129,63 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
 	
+}
+
+void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
+{
+	const TJob& Job = JobAndChannel;
+	TJobReply Reply( JobAndChannel );
+
+	std::stringstream Error;
+
+	//	get device
+	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
+	auto Device = mCoreVideo.GetDevice( Serial, Error );
+	if ( !Device )
+	{
+		std::stringstream ReplyError;
+		ReplyError << "Device " << Serial << " not found " << Error.str();
+		Reply.mParams.AddErrorParam( ReplyError.str() );
+		TChannel& Channel = JobAndChannel;
+		Channel.OnJobCompleted( Reply );
+		return;
+	}
+
+	//	create new subscription for it
+	//	gr: determine if this already exists!
+	std::stringstream EventName;
+	EventName << "newframe" << Serial;
+	auto Event = mSubcriberManager.AddEvent( Device->mOnNewFrame, EventName.str(), Error );
+	if ( !Event )
+	{
+		std::stringstream ReplyError;
+		ReplyError << "Failed to create new event " << EventName.str() << ". " << Error.str();
+		Reply.mParams.AddErrorParam( ReplyError.str() );
+		TChannel& Channel = JobAndChannel;
+		Channel.OnJobCompleted( Reply );
+		return;
+	}
+	
+	//	subscribe this caller
+	if ( !Event->AddSubscriber( Job.mChannelMeta, Error ) )
+	{
+		std::stringstream ReplyError;
+		ReplyError << "Failed to add subscriber to event " << EventName.str() << ". " << Error.str();
+		Reply.mParams.AddErrorParam( ReplyError.str() );
+		TChannel& Channel = JobAndChannel;
+		Channel.OnJobCompleted( Reply );
+		return;
+	}
+
+	
+	std::stringstream ReplyString;
+	ReplyString << "OK subscribed to " << EventName.str();
+	Reply.mParams.AddDefaultParam( ReplyString.str() );
+	if ( !Error.str().empty() )
+		Reply.mParams.AddErrorParam( Error.str() );
+
+	TChannel& Channel = JobAndChannel;
+	Channel.OnJobCompleted( Reply );
 }
 
 
