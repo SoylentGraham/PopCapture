@@ -137,12 +137,12 @@ public:
 	virtual bool				SetOption(TVideoOption::Type Option,bool Enable) override;
 
 private:
-	bool setFocusLocked(bool Enable);
-	bool setWhiteBalanceLocked(bool Enable);
-	bool setExposureLocked(bool Enable);
+	bool	setFocusLocked(bool Enable);
+	bool	setWhiteBalanceLocked(bool Enable);
+	bool	setExposureLocked(bool Enable);
 
-	bool						BeginConfiguration();
-	bool						EndConfiguration();
+	bool	BeginConfiguration();
+	bool	EndConfiguration();
 	bool	run(const std::string& Serial,TVideoQuality::Type Quality,std::stringstream& Error);
 
 	bool	Play();
@@ -156,38 +156,6 @@ public:
 
 class SoyVideoCapture //: public EventReceiver
 {
-public:
-    
-    struct FrameData
-    {
-        int w;
-        int h;
-        
-        char* data;
-        int dataSize;
-        int rowSize;
-        
-        FrameData() : data(0), dataSize(0)
-        { }
-    };
-    
-    enum Flags
-    {
-        VideoCaptureFlag_LockFocus = 0x01,
-        VideoCaptureFlag_LockWhiteBalance = 0x02,
-        VideoCaptureFlag_LockExposure = 0x04,
-        
-        VideoCaptureFlag_LockAllParameters =
-        VideoCaptureFlag_LockFocus | VideoCaptureFlag_LockWhiteBalance | VideoCaptureFlag_LockExposure
-    };
-    
-    enum Quality
-    {
-        VideoCaptureQuality_Low,
-        VideoCaptureQuality_Medium,
-        VideoCaptureQuality_High
-    };
-	
 public:
     SoyVideoCapture();
     virtual ~SoyVideoCapture();
