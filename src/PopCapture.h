@@ -8,13 +8,6 @@
 class TChannel;
 
 
-class TVideoCapture : public SoyVideoCapture
-{
-public:
-	virtual void onVideoFrame(const FrameData& frame);
-};
-
-
 class TPopCapture : public SoyApp, public TJobHandler
 {
 public:
@@ -32,6 +25,6 @@ public:
 
 	bool			mRunning;
 	
-	TVideoCapture	mCoreVideo;
+	SoyVideoCapture	mCoreVideo;
 };
 

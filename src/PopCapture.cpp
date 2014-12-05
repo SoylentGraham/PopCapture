@@ -11,14 +11,6 @@
 
 
 
-
-void TVideoCapture::onVideoFrame(const FrameData& frame)
-{
-	std::Debug << "On new frame" << std::endl;
-}
-
-
-
 TPopCapture::TPopCapture() :
 	mRunning	( true )
 {
@@ -106,7 +98,8 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	
 	//	grab pixels
 	auto LastFrame = Device->GetLastFrame( Error );
-	Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+	if ( LastFrame.IsValid() )
+		Reply.mParams.AddDefaultParam( LastFrame.mPixels );
 
 	//	add error if present (last frame could be out of date)
 	if ( !Error.str().empty() )
