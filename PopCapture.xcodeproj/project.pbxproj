@@ -81,7 +81,6 @@
 
 /* Begin PBXFileReference section */
 		FB8A05931A2E54730099596C /* PopCapture */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PopCapture; sourceTree = BUILT_PRODUCTS_DIR; };
-		FB8A059D1A2E54A30099596C /* PopCapture */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PopCapture; sourceTree = "<group>"; };
 		FB8A05A61A2E57700099596C /* PopApp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PopApp.xcconfig; path = ../PopTrack/PopApp.xcconfig; sourceTree = "<group>"; };
 		FB8A06201A2E5A200099596C /* memheap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memheap.cpp; path = ../ofxSoylent/src/memheap.cpp; sourceTree = "<group>"; };
 		FB8A06231A2E5A7C0099596C /* SortArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SortArray.h; path = ../ofxSoylent/src/SortArray.h; sourceTree = "<group>"; };
@@ -205,6 +204,7 @@
 		FBC3A0E01A308648009DA49E /* SoyScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyScope.h; path = ../ofxSoylent/src/SoyScope.h; sourceTree = "<group>"; };
 		FBC3A0E21A32656F009DA49E /* TJobEventSubscriber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TJobEventSubscriber.h; path = src/TJobEventSubscriber.h; sourceTree = SOURCE_ROOT; };
 		FBC3A0E31A326891009DA49E /* TJobEventSubscriber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TJobEventSubscriber.cpp; path = src/TJobEventSubscriber.cpp; sourceTree = SOURCE_ROOT; };
+		FBC3A0E51A328A56009DA49E /* websrc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = websrc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,7 +232,7 @@
 				FB8A05A61A2E57700099596C /* PopApp.xcconfig */,
 				FB8A067B1A2E68C20099596C /* poplib */,
 				FB8A06221A2E5A280099596C /* soylib */,
-				FB8A059D1A2E54A30099596C /* PopCapture */,
+				FBC3A0E51A328A56009DA49E /* websrc */,
 				FB8A05951A2E54730099596C /* src */,
 				FB8A05941A2E54730099596C /* Products */,
 			);

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>View Images</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		
+		<script src="SoyWebsocket-1.0.js"></script>
+		<script src="SoyJob-1.0.js"></script>
+		<script src="soyjs/soy.js"></script>
+		<script src="soyjs/SoyRect.js"></script>
+		<script src="soyjs/SoyAsset.js"></script>
+		
+	</head>
+<style>
+
+#Images
+{
+	background:	#cfc;
+	padding:	20px;
+}
+
+#Images img
+{
+	margin:	10px;
+}
+
+#Sockets
+{
+	background:	#cff;
+	padding:	20px;
+}
+
+#Errors
+{
+	background:	#fcc;
+	padding:	20px;
+}
+
+#Commands
+{
+	background:	#ccc;
+	padding:	20px;
+}
+
+.SoyWebSocket
+{
+	float:right;
+}
+
+</style>
+<body>
+	
+	
+	<div>
+		<div>Images</div>
+		<div id="Images"></div>
+	</div>
+	
+	<div>
+		<div>Sockets</div>
+		<div id="Sockets"></div>
+	</div>
+	
+	<div>
+		<div>Commands</div>
+		<div id="Commands">
+	</div>
+	
+	<div>
+		<div>Errors <a href="#" onclick="ClearErrors();return false;">(clear)</a></div>
+		<div id="Errors"></div>
+	</div>
+	
+
+<script language="javascript">
+
+var $ImageIdMap = {};
+var $ImageCounter = 0;
+function GetImageId($ImageName)
+{
+	if ( IsUndefined($ImageIdMap[$ImageName]) )
+	{
+		$ImageIdMap[$ImageName] = "xxximage_" + $ImageCounter;
+		$ImageCounter++;
+	}
+	return $ImageIdMap[$ImageName];
+}
+
+function UpdateImage($ImageName,$ImageDataUri)
+{
+	var $ImagesDiv = document.getElementById("Images");
+	if ( !$ImagesDiv )
+		return false;
+	
+	var $ImageImgId = GetImageId($ImageName);
+	var $ImageImg = document.getElementById($ImageImgId);
+	if ( $ImageImg )
+	{
+		$ImageImg = document.createElement('img');
+		$ImagesDiv.appendChild( $ImageImg );
+	}
+	
+	$ImageImg.src = $ImageDataUri;
+}
+
+function OnGetFrame($Json)
+{
+	if ( !$Json.default )
+	{
+		console.log("json has no default; ", $Json );
+		return;
+	}
+	
+	var $ImageDataUri = $Json.default;
+	UpdateImage("serial", $ImageDataUri);
+}
+
+function ClearErrors()
+{
+	var $Element = GetElement('Errors');
+	$Element.innerText = "";
+}
+
+function OnError($Error)
+{
+	var $Element = GetElement('Errors');
+	$Element.innerText += $Error + "\n";
+}
+
+function OnWebsocketMessage($SoyWebSocket,$Message)
+{
+
+	var $Json = ParseJson($Message);
+	if ( $Json )
+	{
+		console.log($Json);
+		
+		if ( $Json.mCommand == "re:getframe" )
+			OnGetFrame($Json);
+
+		if ( $Json.error )
+			OnError( $Json.error );
+	}
+	else
+	{
+		OnError( $Message );
+	}
+ 
+}
+
+
+
+var $Socket1 = new SoyWebSocket('Hub91',9090);
+var $Socket2 = new SoyWebSocket('Hub90',9091);
+$Socket1.mOnMessage = OnWebsocketMessage;
+$Socket2.mOnMessage = OnWebsocketMessage;
+//	silence connection retries
+$Socket1.mOnDisconnected = function(){};
+$Socket2.mOnDisconnected = function(){};
+$Socket1.mOnConnecting = function(){};
+$Socket2.mOnConnecting = function(){};
+$Socket1.mOnConnected = function() {
+	var $Job = new SoyJob('list');
+	SendJob($Job,false);
+};
+$Socket2.mOnConnected = $Socket1.mOnConnected;
+
+
+
+function SendJob($Job,$ShowError)
+{
+	var $Sent = false;
+	$ShowError = CheckDefaultParam( $ShowError, true );
+	
+	if ( $Socket1.IsConnected() )
+	{
+		$Sent |= $Socket1.SendMessage( $Job.toString() );
+	}
+	if ( $Socket2.IsConnected() )
+	{
+		$Sent |= $Socket2.SendMessage( $Job.toString() );
+	}
+	
+	if ( !$Sent && $ShowError )
+	{
+		OnError("Command " + $Job.mCommand + " not sent (not connected)");
+	}
+}
+
+
+function MakeInput($ParentElement,$InitialValue)
+{
+	var $Input = document.createElement('input');
+	$Input.value = $InitialValue;
+	
+	$ParentElement.appendChild($Input);
+	
+	return $Input;
+}
+
+function MakeButton($ParentElement,$Label)
+{
+	var $Input = document.createElement('button');
+	$Input.innerText = $Label;
+	
+	$ParentElement.appendChild($Input);
+	
+	return $Input;
+	
+}
+
+function MakeGetFrameButton($ParentElement)
+{
+	var $Div = document.createElement('div');
+	$ParentElement.appendChild($Div);
+	var $InputSerial = MakeInput( $Div, "facetime" );
+	var $InputFormat = MakeInput( $Div, "png" );
+	var $Button = MakeButton( $Div, "Get Frame" );
+	
+	var $OnClick = function(e)
+	{
+		var This = e.toElement;
+		var $Job = new SoyJob('getframe');
+		$Job.serial = $InputSerial.value;
+		$Job.format = $InputFormat.value;
+		SendJob($Job);
+	};
+	$Button.onclick = $OnClick;
+}
+
+function TryConnectLoop()
+{
+	if ( !$Socket1.IsConnected() && !$Socket2.IsConnected() )
+	{
+		$Socket1.Connect();
+		$Socket2.Connect();
+	}
+	
+	setTimeout( TryConnectLoop, 500 );
+}
+
+
+
+//	main()
+var $CommandsElement = GetElement('Commands');
+MakeGetFrameButton($CommandsElement);
+TryConnectLoop();
+
+
+</script>
+		
+		
+	</body>
