@@ -135,6 +135,7 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto FrameMs = Device->GetFrameMs();
 	Reply.mParams.AddParam("fps", FrameRate);
 	Reply.mParams.AddParam("framems", FrameMs );
+	Reply.mParams.AddParam("serial", Device->GetMeta().mSerial );
 	
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
