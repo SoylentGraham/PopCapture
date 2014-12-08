@@ -148,10 +148,11 @@ class AVCaptureSessionWrapper
 {
 public:
 	AVCaptureSessionWrapper(TVideoDevice_AvFoundation& Parent) :
-		_session	( nullptr ),
-		_proxy		( nullptr ),
-		mDevice		( nullptr ),
-		mParent		( Parent )
+		_session		( nullptr ),
+		_proxy			( nullptr ),
+		mDevice			( nullptr ),
+		mParent			( Parent ),
+		mExpectedFormat	( SoyPixelsFormat::Invalid )
 	{
 	}
 	~AVCaptureSessionWrapper()
@@ -164,6 +165,7 @@ public:
 
 	void handleSampleBuffer(CMSampleBufferRef);
 
+	SoyPixelsFormat::Type		mExpectedFormat;
 	AVCaptureDevice*			mDevice;
 	AVCaptureSession*			_session;
 	VideoCaptureProxy*			_proxy;
@@ -195,8 +197,16 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 	
 	SoyPixels Pixels;
 	
-	//	gr: find this out! but currently, 4 channels from built in camera gives us BGRA (not sure what alpha is)
-	auto Format = (ChannelCount ==4) ? SoyPixelsFormat::BGRA : SoyPixelsFormat::GetFormatFromChannelCount( ChannelCount );
+	SoyPixelsFormat::Type Format = mExpectedFormat;
+
+	//	if the format given isn't what we were expecting, accomodate
+	int ExpectedChannels = SoyPixelsFormat::GetChannelCount(mExpectedFormat);
+	if ( ExpectedChannels != ChannelCount )
+	{
+		Format = SoyPixelsFormat::GetFormatFromChannelCount( ChannelCount );
+		std::Debug << "Expected CF video format " << mExpectedFormat << " but channels were " << ChannelCount << " not " << ExpectedChannels << ". Reverting format to " << Format << std::endl;
+	}
+	
 	if ( !Pixels.Init( Width, Height, Format ) )
 	{
 		std::stringstream Error;
@@ -433,7 +443,8 @@ TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(std::string Serial,std::str
 	mConfigurationStackCounter	( 0 ),
 	mWrapper					( new AVCaptureSessionWrapper(*this) )
 {
-	run( Serial, TVideoQuality::Low, Error );
+	TVideoDeviceParams Params;
+	run( Serial, Params, Error );
 	if ( !Error.str().empty() )
 		OnFailedFrame( Error.str() );
 }
@@ -462,9 +473,154 @@ NSString* GetAVCaptureSessionQuality(TVideoQuality::Type Quality)
 	}
 }
 
+/*
+SoyPixelsFormat::Type GetPixelFormatFromCvFormat(NSNumber Number)
+{
+}
+
+/*
+{
+	@"kCVPixelFormatType_1Monochrome", [NSNumber numberWithInt:kCVPixelFormatType_1Monochrome],
+	@"kCVPixelFormatType_2Indexed", [NSNumber numberWithInt:kCVPixelFormatType_2Indexed],
+	@"kCVPixelFormatType_4Indexed", [NSNumber numberWithInt:kCVPixelFormatType_4Indexed],
+	@"kCVPixelFormatType_8Indexed", [NSNumber numberWithInt:kCVPixelFormatType_8Indexed],
+	@"kCVPixelFormatType_1IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_1IndexedGray_WhiteIsZero],
+	@"kCVPixelFormatType_2IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_2IndexedGray_WhiteIsZero],
+	@"kCVPixelFormatType_4IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_4IndexedGray_WhiteIsZero],
+	@"kCVPixelFormatType_8IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_8IndexedGray_WhiteIsZero],
+	@"kCVPixelFormatType_16BE555", [NSNumber numberWithInt:kCVPixelFormatType_16BE555],
+	@"kCVPixelFormatType_16LE555", [NSNumber numberWithInt:kCVPixelFormatType_16LE555],
+	@"kCVPixelFormatType_16LE5551", [NSNumber numberWithInt:kCVPixelFormatType_16LE5551],
+	@"kCVPixelFormatType_16BE565", [NSNumber numberWithInt:kCVPixelFormatType_16BE565],
+	@"kCVPixelFormatType_16LE565", [NSNumber numberWithInt:kCVPixelFormatType_16LE565],
+	@"kCVPixelFormatType_24RGB", [NSNumber numberWithInt:kCVPixelFormatType_24RGB],
+	@"kCVPixelFormatType_24BGR", [NSNumber numberWithInt:kCVPixelFormatType_24BGR],
+	@"kCVPixelFormatType_32ARGB", [NSNumber numberWithInt:kCVPixelFormatType_32ARGB],
+	@"kCVPixelFormatType_32BGRA", [NSNumber numberWithInt:kCVPixelFormatType_32BGRA],
+	@"kCVPixelFormatType_32ABGR", [NSNumber numberWithInt:kCVPixelFormatType_32ABGR],
+	@"kCVPixelFormatType_32RGBA", [NSNumber numberWithInt:kCVPixelFormatType_32RGBA],
+	@"kCVPixelFormatType_64ARGB", [NSNumber numberWithInt:kCVPixelFormatType_64ARGB],
+	@"kCVPixelFormatType_48RGB", [NSNumber numberWithInt:kCVPixelFormatType_48RGB],
+	@"kCVPixelFormatType_32AlphaGray", [NSNumber numberWithInt:kCVPixelFormatType_32AlphaGray],
+	@"kCVPixelFormatType_16Gray", [NSNumber numberWithInt:kCVPixelFormatType_16Gray],
+	@"kCVPixelFormatType_422YpCbCr8", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8],
+	@"kCVPixelFormatType_4444YpCbCrA8", [NSNumber numberWithInt:kCVPixelFormatType_4444YpCbCrA8],
+	@"kCVPixelFormatType_4444YpCbCrA8R", [NSNumber numberWithInt:kCVPixelFormatType_4444YpCbCrA8R],
+	@"kCVPixelFormatType_444YpCbCr8", [NSNumber numberWithInt:kCVPixelFormatType_444YpCbCr8],
+	@"kCVPixelFormatType_422YpCbCr16", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr16],
+	@"kCVPixelFormatType_422YpCbCr10", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr10],
+	@"kCVPixelFormatType_444YpCbCr10", [NSNumber numberWithInt:kCVPixelFormatType_444YpCbCr10],
+	@"kCVPixelFormatType_420YpCbCr8Planar", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8Planar],
+	@"kCVPixelFormatType_420YpCbCr8PlanarFullRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8PlanarFullRange],
+	@"kCVPixelFormatType_422YpCbCr_4A_8BiPlanar", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr_4A_8BiPlanar],
+	@"kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],
+	@"kCVPixelFormatType_420YpCbCr8BiPlanarFullRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange],
+	@"kCVPixelFormatType_422YpCbCr8_yuvs", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8_yuvs],
+	@"kCVPixelFormatType_422YpCbCr8FullRange", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8FullRange],
+	nil];
+}
+*/
 
 
-bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoQuality::Type Quality,std::stringstream& Error)
+#define CV_VIDEO_TYPE_META(Enum,SoyFormat)	TCvVideoTypeMeta( Enum, #Enum, SoyFormat )
+#define CV_VIDEO_INVALID_ENUM		0
+class TCvVideoTypeMeta
+{
+public:
+	TCvVideoTypeMeta(int Enum,const char* EnumName,SoyPixelsFormat::Type SoyFormat) :
+		mEnum		( Enum ),
+		mName		( EnumName ),
+		mSoyFormat	( SoyFormat )
+	{
+		Soy::Assert( IsValid(), "Expected valid enum - or invalid enum is bad" );
+	}
+	TCvVideoTypeMeta() :
+		mEnum		( CV_VIDEO_INVALID_ENUM ),
+		mName		( "Invalid enum" ),
+		mSoyFormat	( SoyPixelsFormat::Invalid )
+	{
+	}
+	
+	bool		IsValid() const		{	return mEnum != CV_VIDEO_INVALID_ENUM;	}
+	
+	bool		operator==(const int& Enum) const	{	return mEnum == Enum;	}
+	bool		operator==(const SoyPixelsFormat::Type& Format) const	{	return mSoyFormat == Format;	}
+	
+public:
+	int						mEnum;
+	SoyPixelsFormat::Type	mSoyFormat;
+	std::string				mName;
+};
+
+const TCvVideoTypeMeta VideoTypes[] =
+{
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_1Monochrome,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_2Indexed,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_4Indexed,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_8Indexed,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_1IndexedGray_WhiteIsZero,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_2IndexedGray_WhiteIsZero,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_4IndexedGray_WhiteIsZero,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_8IndexedGray_WhiteIsZero,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16BE555,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16LE555,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16LE5551,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16BE565,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16LE565,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_24RGB,	SoyPixelsFormat::RGB ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_24BGR,	SoyPixelsFormat::BGR ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_32ARGB,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_32BGRA,	SoyPixelsFormat::BGRA ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_32ABGR,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_32RGBA,	SoyPixelsFormat::RGBA ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_64ARGB,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_48RGB,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_32AlphaGray,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_16Gray,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr8,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_4444YpCbCrA8,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_4444YpCbCrA8R,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_444YpCbCr8,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr16,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr10,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_444YpCbCr10,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_420YpCbCr8Planar,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_420YpCbCr8PlanarFullRange,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr_4A_8BiPlanar,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr8_yuvs,	SoyPixelsFormat::Invalid ),
+	CV_VIDEO_TYPE_META( kCVPixelFormatType_422YpCbCr8FullRange,	SoyPixelsFormat::Invalid ),
+};
+
+
+
+TCvVideoTypeMeta GetVideoMeta(int Enum)
+{
+	static const BufferArray<TCvVideoTypeMeta,100> Metas( VideoTypes );
+	auto* Meta = Metas.Find( Enum );
+	return Meta ? *Meta : TCvVideoTypeMeta();
+}
+
+void GetCompatiblePixelFormats(ArrayBridge<TCvVideoTypeMeta>&& CompatibleFormats,NSArray* AvailibleFormats)
+{
+	for (NSNumber* CvFormat in AvailibleFormats)
+	{
+		int FormatEnum = [CvFormat intValue];
+		auto Meta = GetVideoMeta( FormatEnum );
+		if ( !Soy::Assert(Meta.IsValid(), std::stringstream() << "Unknown CV format: " << FormatEnum ) )
+			continue;
+
+		//	not a format we can handle
+		if ( !SoyPixelsFormat::IsValid( Meta.mSoyFormat) )
+			continue;
+		
+		CompatibleFormats.PushBack( Meta );
+	}
+}
+
+
+bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams& Params,std::stringstream& Error)
 {
 	if ( !Soy::Assert( mWrapper != nullptr, "expected wrapper") )
 	{
@@ -495,9 +651,33 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoQuality::Typ
 		[Wrapper._session addInput:_input];
 	
 	AVCaptureVideoDataOutput* _output = [[AVCaptureVideoDataOutput alloc] init];
-	_output.alwaysDiscardsLateVideoFrames = YES;
+ 
+	//	find compatible soy formats
+	Array<TCvVideoTypeMeta> Formats;
+	GetCompatiblePixelFormats( GetArrayBridge(Formats), [_output availableVideoCVPixelFormatTypes] );
+	
+	if ( Formats.IsEmpty() )
+	{
+		Error << "Could not find compatible pixel format for device" << std::endl;
+		return false;
+	}
+	
+	//	gr: determine "fastest" or "best" format...
+	const TCvVideoTypeMeta* BestFormat = &Formats[0];
+	if ( Formats.Find( SoyPixelsFormat::RGB ) )
+		BestFormat = Formats.Find( SoyPixelsFormat::RGB );
+	else if ( Formats.Find( SoyPixelsFormat::RGBA ) )
+		BestFormat = Formats.Find( SoyPixelsFormat::RGBA );
+	else if ( Formats.Find( SoyPixelsFormat::BGR ) )
+		BestFormat = Formats.Find( SoyPixelsFormat::BGR );
+	else if ( Formats.Find( SoyPixelsFormat::BGRA ) )
+		BestFormat = Formats.Find( SoyPixelsFormat::BGRA );
+	
+	Wrapper.mExpectedFormat = BestFormat->mSoyFormat;
+	
+	_output.alwaysDiscardsLateVideoFrames = Params.mDiscardOldFrames ? YES : NO;
 	_output.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-							 [NSNumber numberWithInt:kCVPixelFormatType_32BGRA], kCVPixelBufferPixelFormatTypeKey, nil];
+							 [NSNumber numberWithInt:BestFormat->mEnum], kCVPixelBufferPixelFormatTypeKey, nil];
 	
     
     //[_output setSampleBufferDelegate:_proxy queue:dispatch_get_main_queue()];

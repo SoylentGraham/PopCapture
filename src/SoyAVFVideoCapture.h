@@ -67,6 +67,21 @@ namespace TVideoOption
 	};
 }
 
+
+class TVideoDeviceParams
+{
+public:
+	TVideoDeviceParams() :
+		mDiscardOldFrames	( true ),
+		mQuality			( TVideoQuality::Low )
+	{
+	}
+	
+	bool				mDiscardOldFrames;
+	TVideoQuality::Type	mQuality;	//	replce with resolution!
+};
+
+
 //	seperate type for meta so we can have timecode
 class TVideoFrame
 {
@@ -143,7 +158,7 @@ private:
 
 	bool	BeginConfiguration();
 	bool	EndConfiguration();
-	bool	run(const std::string& Serial,TVideoQuality::Type Quality,std::stringstream& Error);
+	bool	run(const std::string& Serial,TVideoDeviceParams& Params,std::stringstream& Error);
 
 	bool	Play();
 	void	Pause();
