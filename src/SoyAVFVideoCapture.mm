@@ -229,11 +229,18 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection;
 
+- (void)onVideoError:(NSNotification *)notification;
+
 @end
 
 
 
 @implementation VideoCaptureProxy
+
+- (void)onVideoError:(NSNotification *)notification
+{
+	NSLog(@"Video error: %@", notification.userInfo[AVCaptureSessionErrorKey]);
+}
 
 - (id)initWithVideoCapturePrivate:(TVideoDevice_AvFoundation*)p
 {
@@ -473,54 +480,6 @@ NSString* GetAVCaptureSessionQuality(TVideoQuality::Type Quality)
 	}
 }
 
-/*
-SoyPixelsFormat::Type GetPixelFormatFromCvFormat(NSNumber Number)
-{
-}
-
-/*
-{
-	@"kCVPixelFormatType_1Monochrome", [NSNumber numberWithInt:kCVPixelFormatType_1Monochrome],
-	@"kCVPixelFormatType_2Indexed", [NSNumber numberWithInt:kCVPixelFormatType_2Indexed],
-	@"kCVPixelFormatType_4Indexed", [NSNumber numberWithInt:kCVPixelFormatType_4Indexed],
-	@"kCVPixelFormatType_8Indexed", [NSNumber numberWithInt:kCVPixelFormatType_8Indexed],
-	@"kCVPixelFormatType_1IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_1IndexedGray_WhiteIsZero],
-	@"kCVPixelFormatType_2IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_2IndexedGray_WhiteIsZero],
-	@"kCVPixelFormatType_4IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_4IndexedGray_WhiteIsZero],
-	@"kCVPixelFormatType_8IndexedGray_WhiteIsZero", [NSNumber numberWithInt:kCVPixelFormatType_8IndexedGray_WhiteIsZero],
-	@"kCVPixelFormatType_16BE555", [NSNumber numberWithInt:kCVPixelFormatType_16BE555],
-	@"kCVPixelFormatType_16LE555", [NSNumber numberWithInt:kCVPixelFormatType_16LE555],
-	@"kCVPixelFormatType_16LE5551", [NSNumber numberWithInt:kCVPixelFormatType_16LE5551],
-	@"kCVPixelFormatType_16BE565", [NSNumber numberWithInt:kCVPixelFormatType_16BE565],
-	@"kCVPixelFormatType_16LE565", [NSNumber numberWithInt:kCVPixelFormatType_16LE565],
-	@"kCVPixelFormatType_24RGB", [NSNumber numberWithInt:kCVPixelFormatType_24RGB],
-	@"kCVPixelFormatType_24BGR", [NSNumber numberWithInt:kCVPixelFormatType_24BGR],
-	@"kCVPixelFormatType_32ARGB", [NSNumber numberWithInt:kCVPixelFormatType_32ARGB],
-	@"kCVPixelFormatType_32BGRA", [NSNumber numberWithInt:kCVPixelFormatType_32BGRA],
-	@"kCVPixelFormatType_32ABGR", [NSNumber numberWithInt:kCVPixelFormatType_32ABGR],
-	@"kCVPixelFormatType_32RGBA", [NSNumber numberWithInt:kCVPixelFormatType_32RGBA],
-	@"kCVPixelFormatType_64ARGB", [NSNumber numberWithInt:kCVPixelFormatType_64ARGB],
-	@"kCVPixelFormatType_48RGB", [NSNumber numberWithInt:kCVPixelFormatType_48RGB],
-	@"kCVPixelFormatType_32AlphaGray", [NSNumber numberWithInt:kCVPixelFormatType_32AlphaGray],
-	@"kCVPixelFormatType_16Gray", [NSNumber numberWithInt:kCVPixelFormatType_16Gray],
-	@"kCVPixelFormatType_422YpCbCr8", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8],
-	@"kCVPixelFormatType_4444YpCbCrA8", [NSNumber numberWithInt:kCVPixelFormatType_4444YpCbCrA8],
-	@"kCVPixelFormatType_4444YpCbCrA8R", [NSNumber numberWithInt:kCVPixelFormatType_4444YpCbCrA8R],
-	@"kCVPixelFormatType_444YpCbCr8", [NSNumber numberWithInt:kCVPixelFormatType_444YpCbCr8],
-	@"kCVPixelFormatType_422YpCbCr16", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr16],
-	@"kCVPixelFormatType_422YpCbCr10", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr10],
-	@"kCVPixelFormatType_444YpCbCr10", [NSNumber numberWithInt:kCVPixelFormatType_444YpCbCr10],
-	@"kCVPixelFormatType_420YpCbCr8Planar", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8Planar],
-	@"kCVPixelFormatType_420YpCbCr8PlanarFullRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8PlanarFullRange],
-	@"kCVPixelFormatType_422YpCbCr_4A_8BiPlanar", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr_4A_8BiPlanar],
-	@"kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange],
-	@"kCVPixelFormatType_420YpCbCr8BiPlanarFullRange", [NSNumber numberWithInt:kCVPixelFormatType_420YpCbCr8BiPlanarFullRange],
-	@"kCVPixelFormatType_422YpCbCr8_yuvs", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8_yuvs],
-	@"kCVPixelFormatType_422YpCbCr8FullRange", [NSNumber numberWithInt:kCVPixelFormatType_422YpCbCr8FullRange],
-	nil];
-}
-*/
-
 
 #define CV_VIDEO_TYPE_META(Enum,SoyFormat)	TCvVideoTypeMeta( Enum, #Enum, SoyFormat )
 #define CV_VIDEO_INVALID_ENUM		0
@@ -712,13 +671,6 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 		}
 		
 		
-		//[_output setSampleBufferDelegate:_proxy queue:dispatch_get_main_queue()];
-		dispatch_queue_t queue = dispatch_queue_create("camera_queue", NULL);
-		[_output setSampleBufferDelegate:Wrapper._proxy queue: queue];
-#if !__has_feature(objc_arc)
-		dispatch_release(queue);
-#endif
-
 		//	compatible, add
 		[Wrapper._session addOutput:_output];
 		break;
@@ -730,15 +682,21 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 		Error << "Could not find compatible pixel format for device" << std::endl;
 		return false;
 	}
-
 	
-	//AVCaptureConnection *conn = [_output connectionWithMediaType:AVMediaTypeVideo];
-	//if (conn.supportsVideoMinFrameDuration)
-	//	conn.videoMinFrameDuration = CMTimeMake(1, 30);
-	//if (conn.supportsVideoMaxFrameDuration)
-	//	conn.videoMaxFrameDuration = CMTimeMake(1, 30);
-
-	//[_session startRunning];
+	NSNotificationCenter *notify =
+	[NSNotificationCenter defaultCenter];
+	[notify addObserver: Wrapper._proxy
+			   selector: @selector(onVideoError:)
+				   name: AVCaptureSessionRuntimeErrorNotification
+				 object: Wrapper._session];
+	
+	//[_output setSampleBufferDelegate:_proxy queue:dispatch_get_main_queue()];
+	dispatch_queue_t queue = dispatch_queue_create("camera_queue", NULL);
+	[_output setSampleBufferDelegate:Wrapper._proxy queue: queue];
+#if !__has_feature(objc_arc)
+	dispatch_release(queue);
+#endif
+	
 	if ( !Play() )
 	{
 		Error << "Failed to play";
