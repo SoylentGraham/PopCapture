@@ -636,7 +636,29 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 	Wrapper._proxy = [[VideoCaptureProxy alloc] initWithVideoCapturePrivate:this];
     
 	Wrapper._session = [[AVCaptureSession alloc] init];
-	Wrapper._session.sessionPreset = AVCaptureSessionPresetLow;
+	
+	Array<TVideoQuality::Type> Qualitys;
+	Qualitys.PushBack( Params.mQuality );
+	Qualitys.PushBack( TVideoQuality::Low );
+	Qualitys.PushBack( TVideoQuality::Medium );
+	Qualitys.PushBack( TVideoQuality::High );
+	
+	while ( !Qualitys.IsEmpty() )
+	{
+		auto Quality = Qualitys.PopAt(0);
+		auto QualityString = GetAVCaptureSessionQuality(Quality);
+		
+		if ( ![Wrapper._session canSetSessionPreset:QualityString] )
+			continue;
+		
+		Wrapper._session.sessionPreset = AVCaptureSessionPresetLow;
+		break;
+	}
+	if ( Qualitys.IsEmpty() )
+	{
+		Error << "Failed to set a session preset";
+		return false;
+	}
 	
 	NSError* error = nil;
     
@@ -656,39 +678,59 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 	Array<TCvVideoTypeMeta> Formats;
 	GetCompatiblePixelFormats( GetArrayBridge(Formats), [_output availableVideoCVPixelFormatTypes] );
 	
+	while ( !Formats.IsEmpty() )
+	{
+		//	gr: determine "fastest" or "best" format...
+		const TCvVideoTypeMeta* BestFormat = &Formats[0];
+		if ( Formats.Find( SoyPixelsFormat::RGB ) )
+			BestFormat = Formats.Find( SoyPixelsFormat::RGB );
+		else if ( Formats.Find( SoyPixelsFormat::RGBA ) )
+			BestFormat = Formats.Find( SoyPixelsFormat::RGBA );
+		else if ( Formats.Find( SoyPixelsFormat::BGR ) )
+			BestFormat = Formats.Find( SoyPixelsFormat::BGR );
+		else if ( Formats.Find( SoyPixelsFormat::BGRA ) )
+			BestFormat = Formats.Find( SoyPixelsFormat::BGRA );
+		
+		Wrapper.mExpectedFormat = BestFormat->mSoyFormat;
+		
+		_output.alwaysDiscardsLateVideoFrames = Params.mDiscardOldFrames ? YES : NO;
+		_output.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
+								 [NSNumber numberWithInt:BestFormat->mEnum], kCVPixelBufferPixelFormatTypeKey, nil];
+		
+	
+		if ( ![Wrapper._session canAddOutput:_output] )
+		{
+			Error << "Output " << BestFormat->mName << " not supported by this output device";
+			std::Debug << "Output " << BestFormat->mName << " not supported by this output device" << std::endl;
+			if ( !Formats.Remove( BestFormat->mEnum ) )
+			{
+				Soy::Assert( false, "find of current format failed. bail out of infinite loop!");
+				Formats.Clear();
+				break;
+			}
+			continue;
+		}
+		
+		
+		//[_output setSampleBufferDelegate:_proxy queue:dispatch_get_main_queue()];
+		dispatch_queue_t queue = dispatch_queue_create("camera_queue", NULL);
+		[_output setSampleBufferDelegate:Wrapper._proxy queue: queue];
+#if !__has_feature(objc_arc)
+		dispatch_release(queue);
+#endif
+
+		//	compatible, add
+		[Wrapper._session addOutput:_output];
+		break;
+	}
+	
+	//	didn't succeed, ran out of formats;
 	if ( Formats.IsEmpty() )
 	{
 		Error << "Could not find compatible pixel format for device" << std::endl;
 		return false;
 	}
-	
-	//	gr: determine "fastest" or "best" format...
-	const TCvVideoTypeMeta* BestFormat = &Formats[0];
-	if ( Formats.Find( SoyPixelsFormat::RGB ) )
-		BestFormat = Formats.Find( SoyPixelsFormat::RGB );
-	else if ( Formats.Find( SoyPixelsFormat::RGBA ) )
-		BestFormat = Formats.Find( SoyPixelsFormat::RGBA );
-	else if ( Formats.Find( SoyPixelsFormat::BGR ) )
-		BestFormat = Formats.Find( SoyPixelsFormat::BGR );
-	else if ( Formats.Find( SoyPixelsFormat::BGRA ) )
-		BestFormat = Formats.Find( SoyPixelsFormat::BGRA );
-	
-	Wrapper.mExpectedFormat = BestFormat->mSoyFormat;
-	
-	_output.alwaysDiscardsLateVideoFrames = Params.mDiscardOldFrames ? YES : NO;
-	_output.videoSettings = [NSDictionary dictionaryWithObjectsAndKeys:
-							 [NSNumber numberWithInt:BestFormat->mEnum], kCVPixelBufferPixelFormatTypeKey, nil];
-	
-    
-    //[_output setSampleBufferDelegate:_proxy queue:dispatch_get_main_queue()];
-    dispatch_queue_t queue = dispatch_queue_create("camera_queue", NULL);
-    [_output setSampleBufferDelegate:Wrapper._proxy queue: queue];
-#if !__has_feature(objc_arc)
-    dispatch_release(queue);
-#endif
-	
-    
-	[Wrapper._session addOutput:_output];
+
 	
 	//AVCaptureConnection *conn = [_output connectionWithMediaType:AVMediaTypeVideo];
 	//if (conn.supportsVideoMinFrameDuration)
