@@ -165,7 +165,8 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 	//	create new subscription for it
 	//	gr: determine if this already exists!
 	std::stringstream EventName;
-	EventName << "newframe" << Serial;
+	//EventName << "newframe" << Serial;
+	EventName << "newframe";
 	auto Event = mSubcriberManager.AddEvent( Device->mOnNewFrame, EventName.str(), Error );
 	if ( !Event )
 	{
@@ -213,7 +214,7 @@ public:
 
 	}
 	
-	bool				FixParamFormat(TJobParam& Param,std::stringstream& Error)
+	bool				FixParamFormat(TJobParam& Param,std::stringstream& Error) override
 	{
 		return true;
 	}
@@ -241,7 +242,7 @@ public:
 		OnJobSent( Job );
 		return true;
 	}
-	virtual bool				SendCommand(const TJob& Job) override
+	virtual bool				SendCommandImpl(const TJob& Job) override
 	{
 		OnJobSent( Job );
 		return true;

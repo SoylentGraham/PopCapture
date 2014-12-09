@@ -113,7 +113,7 @@ inline bool TEventSubscriptionManager_Instance<EVENTPARAM>::AddSubscriber(TJobCh
 	{
 		TJob OutputJob;
 		
-		OutputJob.mParams.AddDefaultParam( Value );
+		OutputJob.mParams.AddDefaultParam( Value.mPixels );
 		
 		//	find channel, send to Client
 	//	std::Debug << "Got event callback to send to " << Client << std::endl;

@@ -47,6 +47,11 @@
 	float:right;
 }
 
+.VideoImage
+{
+	width:	200px;
+	height:	200px;
+}
 </style>
 <body>
 	
@@ -86,21 +91,29 @@ function GetImageId($ImageName)
 	return $ImageIdMap[$ImageName];
 }
 
+function GetImageElement($ImageName,$ParentDiv)
+{
+	var $ImageImgId = GetImageId($ImageName);
+	var $ImageImg = document.getElementById($ImageImgId);
+	if ( !$ImageImg )
+	{
+		$ImageImg = document.createElement('img');
+		$ImageImg.className = "VideoImage";
+		$ImageImg.id = $ImageImgId;
+		$ParentDiv.appendChild( $ImageImg );
+	}
+	return $ImageImg;
+}
+
 function UpdateImage($ImageName,$ImageDataUri)
 {
 	var $ImagesDiv = document.getElementById("Images");
 	if ( !$ImagesDiv )
 		return false;
 	
-	var $ImageImgId = GetImageId($ImageName);
-	var $ImageImg = document.getElementById($ImageImgId);
-	if ( $ImageImg )
-	{
-		$ImageImg = document.createElement('img');
-		$ImagesDiv.appendChild( $ImageImg );
-	}
-	
-	$ImageImg.src = $ImageDataUri;
+	var $Image = GetImageElement($ImageName,$ImagesDiv);
+
+	$Image.src = $ImageDataUri;
 }
 
 function OnGetFrame($Json)
@@ -112,7 +125,9 @@ function OnGetFrame($Json)
 	}
 	
 	var $ImageDataUri = $Json.default;
-	UpdateImage("serial", $ImageDataUri);
+
+	UpdateImage( $Json.serial, $ImageDataUri);
+	console.log("fps", $Json.fps );
 }
 
 function ClearErrors()
@@ -135,7 +150,7 @@ function OnWebsocketMessage($SoyWebSocket,$Message)
 	{
 		console.log($Json);
 		
-		if ( $Json.mCommand == "re:getframe" )
+		if ( $Json.mCommand == "re:getframe" || $Json.mCommand == "newframe" )
 			OnGetFrame($Json);
 
 		if ( $Json.error )
@@ -209,12 +224,31 @@ function MakeButton($ParentElement,$Label)
 	
 }
 
+
+
+function MakeSubscribeGetFrameButton($ParentElement)
+{
+	var $Div = document.createElement('div');
+	$ParentElement.appendChild($Div);
+	var $InputSerial = MakeInput( $Div, "facetime" );
+	var $Button = MakeButton( $Div, "subscibe to Get Frame" );
+	
+	var $OnClick = function(e)
+	{
+		var This = e.toElement;
+		var $Job = new SoyJob('subscribenewframe');
+		$Job.serial = $InputSerial.value;
+		SendJob($Job);
+	};
+	$Button.onclick = $OnClick;
+}
+
+
 function MakeGetFrameButton($ParentElement)
 {
 	var $Div = document.createElement('div');
 	$ParentElement.appendChild($Div);
 	var $InputSerial = MakeInput( $Div, "facetime" );
-	var $InputFormat = MakeInput( $Div, "png" );
 	var $Button = MakeButton( $Div, "Get Frame" );
 	
 	var $OnClick = function(e)
@@ -222,7 +256,6 @@ function MakeGetFrameButton($ParentElement)
 		var This = e.toElement;
 		var $Job = new SoyJob('getframe');
 		$Job.serial = $InputSerial.value;
-		$Job.format = $InputFormat.value;
 		SendJob($Job);
 	};
 	$Button.onclick = $OnClick;
@@ -244,6 +277,7 @@ function TryConnectLoop()
 //	main()
 var $CommandsElement = GetElement('Commands');
 MakeGetFrameButton($CommandsElement);
+MakeSubscribeGetFrameButton($CommandsElement);
 TryConnectLoop();
 
 
