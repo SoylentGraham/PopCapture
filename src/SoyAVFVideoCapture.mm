@@ -610,7 +610,7 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 		if ( ![Wrapper._session canSetSessionPreset:QualityString] )
 			continue;
 		
-		Wrapper._session.sessionPreset = AVCaptureSessionPresetLow;
+		Wrapper._session.sessionPreset = QualityString;
 		break;
 	}
 	if ( Qualitys.IsEmpty() )
