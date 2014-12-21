@@ -39,6 +39,8 @@ public:
 	
 	SoyVideoCapture		mCoreVideo;
 	TSubscriberManager	mSubcriberManager;
+	std::shared_ptr<MemFileArray>	mFrameMemFile;
+	SoyMemFileManager	mFileManager;
 };
 
 

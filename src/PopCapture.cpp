@@ -31,7 +31,8 @@ void TChannelManager::AddChannel(std::shared_ptr<TChannel> Channel)
 
 TPopCapture::TPopCapture() :
 	mRunning			( true ),
-	mSubcriberManager	( *this )
+	mSubcriberManager	( *this ),
+	mFileManager		( "soy" )
 {
 	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
 	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );
@@ -101,12 +102,15 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 	Channel.OnJobCompleted( Reply );
 }
 
+
+
 void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 {
 	const TJob& Job = JobAndChannel;
 	TJobReply Reply( JobAndChannel );
 	
 	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
+	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",true);
 
 	std::stringstream Error;
 	auto Device = mCoreVideo.GetDevice( Serial, Error );
@@ -124,8 +128,39 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	//	grab pixels
 	auto LastFrame = Device->GetLastFrame( Error );
 	if ( LastFrame.IsValid() )
-		Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+	{
+		if ( AsMemFile )
+		{
+			//	make a mem file
+			auto& PixelsArray = LastFrame.mPixels.GetPixelsArray();
+			int Sz = PixelsArray.GetDataSize();
+			auto Data = GetRemoteArray( PixelsArray.GetArray(), Sz, Sz );
 
+			if ( !mFrameMemFile )
+			{
+				std::stringstream Filename;
+				Filename << "/frame";
+				mFrameMemFile.reset( new MemFileArray( Filename.str(), Data.GetDataSize() ) );
+				if ( !mFrameMemFile->IsValid() )
+					mFrameMemFile.reset();
+			}
+
+			if ( mFrameMemFile )
+			{
+				mFrameMemFile->Copy( Data );
+				Reply.mParams.AddParam("filename", mFrameMemFile->GetFilename() );
+			}
+			else
+			{
+				Error << "Failed to alloc memfile";
+			}
+		}
+		else
+		{
+			Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+		}
+	}
+	
 	//	add error if present (last frame could be out of date)
 	if ( !Error.str().empty() )
 		Reply.mParams.AddErrorParam( Error.str() );
@@ -291,6 +326,9 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	};
 	CommandLineChannel->mOnJobSent.AddListener( RelayFunc );
 
+	Array<char> Data;
+	Data.SetSize(100);
+	App.mFileManager.AllocFile( GetArrayBridge(Data) );
 	
 	//	run
 	Soy::Platform::TConsoleApp Console( App );

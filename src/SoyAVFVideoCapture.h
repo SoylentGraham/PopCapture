@@ -83,6 +83,7 @@ public:
 
 
 //	seperate type for meta so we can have timecode
+//	gr: change this so we store directly to a memfile so we're constantly updating a shared membuffer
 class TVideoFrame
 {
 public:
