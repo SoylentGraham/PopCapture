@@ -4,20 +4,9 @@
 #include <TJob.h>
 #include "SoyAVFVideoCapture.h"
 #include "TJobEventSubscriber.h"
-
-class TChannel;
-
+#include <TChannel.h>
 
 
-class TChannelManager
-{
-public:
-	virtual void				AddChannel(std::shared_ptr<TChannel> Channel);
-	std::shared_ptr<TChannel>	GetChannel(SoyRef Channel);
-	
-public:
-	std::vector<std::shared_ptr<TChannel>>		mChannels;
-};
 
 
 class TPopCapture : public SoyApp, public TJobHandler, public TChannelManager

@@ -10,24 +10,6 @@
 #include <SoyString.h>
 
 
-std::shared_ptr<TChannel> TChannelManager::GetChannel(SoyRef ChannelRef)
-{
-	for ( auto it=mChannels.begin();	it!=mChannels.end();	it++ )
-	{
-		auto pChannel = *it;
-		if ( pChannel->GetChannelRef() == ChannelRef )
-			return pChannel;
-	}
-	return nullptr;
-}
-
-void TChannelManager::AddChannel(std::shared_ptr<TChannel> Channel)
-{
-	if ( !Channel )
-		return;
-	mChannels.push_back( Channel );
-}
-
 
 TPopCapture::TPopCapture() :
 	mRunning			( true ),
