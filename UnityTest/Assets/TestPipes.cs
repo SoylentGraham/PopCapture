@@ -17,18 +17,22 @@ public class TestPipes : MonoBehaviour {
 	const int O_RDONLY = 0x0000;
 	const int O_RDWR = 0x0002;
 
-
+	const int MAP_32BIT = 0x40;
 
 
 	//	libSystem.dylib
-	[DllImport ("system", SetLastError=true)]
+	[DllImport ("system.B", SetLastError=true)]
 	private static extern IntPtr mmap(IntPtr addr, Int32 length, int prot, int flags,int fd, Int32  offset);
 	
-	[DllImport ("system", SetLastError=true)]
+	[DllImport ("system.B", SetLastError=true)]
 	private static extern int shm_open(IntPtr name, int oflag, int mode);
 
-	[DllImport ("system")]
+	[DllImport ("system.B")]
 	private static extern int getpid ();
+	
+	[DllImport ("system.B")]
+	private static extern IntPtr memset (IntPtr ptr, int value, Int32 num );
+	
 
 	public void Start()
 	{
@@ -37,11 +41,11 @@ public class TestPipes : MonoBehaviour {
 
 	 void OpenMapFile()
 	{
-		bool ReadOnly = true;
+		bool ReadOnly = false;
 		int OpenFlags = ReadOnly ? O_RDONLY : O_RDWR;
 		int MapFlags = ReadOnly ? PROT_READ : PROT_READ | PROT_WRITE;
-		int MapMode = MAP_SHARED;
-		MAP_32BIT
+		int MapMode = MAP_SHARED | MAP_32BIT;
+
 
 		if (mFileDesc < 0) {
 			IntPtr p = Marshal.StringToHGlobalAnsi (mMapName);
@@ -56,7 +60,7 @@ public class TestPipes : MonoBehaviour {
 			return;
 
 		Debug.Log ("mmap( 0, " + mLength + ", PROT_READ, MAP_SHARED, " + mFileDesc + ", 0)");
-		IntPtr map = mmap ( (IntPtr)0, mLength, MapFlags, MAP_SHARED, mFileDesc, 0);
+		IntPtr map = mmap ( (IntPtr)0, mLength, MapFlags, MapMode , mFileDesc, 0);
 		int Win32Error = Marshal.GetLastWin32Error ();
 		Debug.Log ("map result " + map);
 		int MapError = (int)map;
@@ -67,9 +71,11 @@ public class TestPipes : MonoBehaviour {
 		if ( map == IntPtr.Zero )
 			return;
 
+		memset (map, 0, 1);
 
 		try
 		{
+			byte byte1 = System.Runtime.InteropServices.Marshal.ReadByte(map, 0);
 			int CopyLength = 1;
 			mBytes = new byte[CopyLength];
 			Marshal.Copy( map, mBytes, 0, CopyLength);
