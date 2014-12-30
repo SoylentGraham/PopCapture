@@ -9,13 +9,12 @@
 
 
 
-class TPopCapture : public SoyApp, public TJobHandler, public TChannelManager
+class TPopCapture : public TJobHandler, public TChannelManager
 {
 public:
 	TPopCapture();
 	
 	virtual void	AddChannel(std::shared_ptr<TChannel> Channel) override;
-	virtual bool	Update()	{	return mRunning;	}
 
 	void			OnListDevices(TJobAndChannel& JobAndChannel);
 	void			OnExit(TJobAndChannel& JobAndChannel);
@@ -23,9 +22,7 @@ public:
 	void			SubscribeNewFrame(TJobAndChannel& JobAndChannel);
 	
 public:
-	
-	bool				mRunning;
-	
+	Soy::Platform::TConsoleApp	mConsoleApp;
 	SoyVideoCapture		mCoreVideo;
 	TSubscriberManager	mSubcriberManager;
 	std::shared_ptr<MemFileArray>	mFrameMemFile;

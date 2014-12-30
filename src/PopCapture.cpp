@@ -12,7 +12,6 @@
 
 
 TPopCapture::TPopCapture() :
-	mRunning			( true ),
 	mSubcriberManager	( *this ),
 	mFileManager		( "soy" )
 {
@@ -42,7 +41,7 @@ void TPopCapture::AddChannel(std::shared_ptr<TChannel> Channel)
 
 void TPopCapture::OnExit(TJobAndChannel& JobAndChannel)
 {
-	mRunning = false;
+	mConsoleApp.Exit();
 	
 	//	should probably still send a reply
 	TJobReply Reply( JobAndChannel );
@@ -288,7 +287,7 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	auto HttpChannel = CreateChannelFromInputString("http:8080-8090", SoyRef("http") );
 	auto WebSocketChannel = CreateChannelFromInputString("ws:json:9090-9099", SoyRef("websock") );
 	//auto WebSocketChannel = CreateChannelFromInputString("ws:cli:9090-9099", SoyRef("websock") );
-	auto SocksChannel = CreateChannelFromInputString("json:7070-7079", SoyRef("socks") );
+	auto SocksChannel = CreateChannelFromInputString("cli:7070-7079", SoyRef("socks") );
 	
 	App.AddChannel( CommandLineChannel );
 	App.AddChannel( StdioChannel );
@@ -312,11 +311,11 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	Data.SetSize(100);
 	App.mFileManager.AllocFile( GetArrayBridge(Data) );
 	
-	//	run
-	Soy::Platform::TConsoleApp Console( App );
-	auto Result = static_cast<TPopAppError::Type>( Console.RunLoop() );
+	//	run until something triggers exit
+	App.mConsoleApp.WaitForExit();
+
 	gStdioChannel.reset();
-	return Result;
+	return TPopAppError::Success;
 }
 
 
