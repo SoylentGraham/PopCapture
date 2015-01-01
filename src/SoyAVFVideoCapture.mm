@@ -9,24 +9,6 @@
 #include <SortArray.h>
 
 
-
-namespace Soy
-{
-	NSString*	StringToNSString(const std::string& String);
-	std::string	NSStringToString(NSString* String);
-};
-
-std::string Soy::NSStringToString(NSString* String)
-{
-	return std::string([String UTF8String]);
-}
-
-NSString* Soy::StringToNSString(const std::string& String)
-{
-	NSString* MacString = [NSString stringWithCString:String.c_str() encoding:[NSString defaultCStringEncoding]];
-	return MacString;
-}
-
 TVideoDeviceMeta GetDeviceMeta(AVCaptureDevice* Device)
 {
 	//	gr: allow this for failed-to-init devices
