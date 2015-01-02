@@ -91,7 +91,7 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	TJobReply Reply( JobAndChannel );
 	
 	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
-	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",true);
+	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",false);
 
 	std::stringstream Error;
 	auto Device = mCoreVideo.GetDevice( Serial, Error );
