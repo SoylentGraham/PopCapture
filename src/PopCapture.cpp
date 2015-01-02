@@ -180,14 +180,12 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 
 	//	create new subscription for it
 	//	gr: determine if this already exists!
-	std::stringstream EventName;
-	//EventName << "newframe" << Serial;
-	EventName << "newframe";
-	auto Event = mSubcriberManager.AddEvent( Device->mOnNewFrame, EventName.str(), Error );
+	auto EventName = Job.mParams.GetParamAs<std::string>("command");
+	auto Event = mSubcriberManager.AddEvent( Device->mOnNewFrame, EventName, Error );
 	if ( !Event )
 	{
 		std::stringstream ReplyError;
-		ReplyError << "Failed to create new event " << EventName.str() << ". " << Error.str();
+		ReplyError << "Failed to create new event " << EventName << ". " << Error.str();
 		Reply.mParams.AddErrorParam( ReplyError.str() );
 		TChannel& Channel = JobAndChannel;
 		Channel.OnJobCompleted( Reply );
@@ -198,7 +196,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 	if ( !Event->AddSubscriber( Job.mChannelMeta, Error ) )
 	{
 		std::stringstream ReplyError;
-		ReplyError << "Failed to add subscriber to event " << EventName.str() << ". " << Error.str();
+		ReplyError << "Failed to add subscriber to event " << EventName << ". " << Error.str();
 		Reply.mParams.AddErrorParam( ReplyError.str() );
 		TChannel& Channel = JobAndChannel;
 		Channel.OnJobCompleted( Reply );
@@ -207,10 +205,11 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 
 	
 	std::stringstream ReplyString;
-	ReplyString << "OK subscribed to " << EventName.str();
+	ReplyString << "OK subscribed to " << EventName;
 	Reply.mParams.AddDefaultParam( ReplyString.str() );
 	if ( !Error.str().empty() )
 		Reply.mParams.AddErrorParam( Error.str() );
+	Reply.mParams.AddParam("eventcommand", EventName);
 
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
