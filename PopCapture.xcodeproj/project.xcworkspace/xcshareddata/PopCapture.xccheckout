@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>E326F42A-D87F-4873-8387-BD54317FCCD6</string>
+	<key>IDESourceControlProjectName</key>
+	<string>PopCapture</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>37417DDE19D70CE3CEE3CDEC3DF7735FC2972C83</key>
+		<string>https://github.com/SoylentGraham/PopTrack.git</string>
+		<key>87907EAD08F9AC05484849759EAC4E8AE0659685</key>
+		<string>https://github.com/SoylentGraham/ofxSoylent.git</string>
+		<key>B3F376921DE14B90E968BAAB9366E52F9AADAD58</key>
+		<string>https://github.com/SoylentGraham/PopCapture.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>PopCapture.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>37417DDE19D70CE3CEE3CDEC3DF7735FC2972C83</key>
+		<string>../../../PopTrack</string>
+		<key>87907EAD08F9AC05484849759EAC4E8AE0659685</key>
+		<string>../../../ofxSoylent</string>
+		<key>B3F376921DE14B90E968BAAB9366E52F9AADAD58</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/SoylentGraham/PopCapture.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>B3F376921DE14B90E968BAAB9366E52F9AADAD58</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>87907EAD08F9AC05484849759EAC4E8AE0659685</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ofxSoylent</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>B3F376921DE14B90E968BAAB9366E52F9AADAD58</string>
+			<key>IDESourceControlWCCName</key>
+			<string>PopCapture</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>37417DDE19D70CE3CEE3CDEC3DF7735FC2972C83</string>
+			<key>IDESourceControlWCCName</key>
+			<string>PopTrack</string>
+		</dict>
+	</array>
+</dict>
+</plist>

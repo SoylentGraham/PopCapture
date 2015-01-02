@@ -6,7 +6,7 @@
 #include <SoyEvent.h>
 #include <SoyPixels.h>
 #include <SoyTime.h>
-
+#include <SoyMemFile.h>
 
 
 class TVideoDeviceMeta
@@ -84,16 +84,34 @@ public:
 
 //	seperate type for meta so we can have timecode
 //	gr: change this so we store directly to a memfile so we're constantly updating a shared membuffer
-class TVideoFrame
+class TVideoFrameImpl
 {
 public:
-	bool			IsValid() const		{	return mPixels.IsValid();	}
-
+	bool							IsValid() const		{	return GetPixelsConst().IsValid();	}
+	virtual SoyPixelsImpl&			GetPixels() =0;
+	virtual const SoyPixelsImpl&	GetPixelsConst() const=0;
+	
 public:
-	SoyPixels		mPixels;
 	SoyTime			mTimecode;
 };
 
+class TVideoFrame : public TVideoFrameImpl
+{
+public:
+	virtual SoyPixelsImpl&			GetPixels() override		{	return mPixels;	}
+	virtual const SoyPixelsImpl&	GetPixelsConst() const override 	{	return mPixels;	}
+
+	SoyPixels		mPixels;
+};
+
+class TVideoFrameMemFile : public TVideoFrameImpl
+{
+public:
+	virtual SoyPixelsImpl&			GetPixels() override		{	return mPixels;	}
+	virtual const SoyPixelsImpl&	GetPixelsConst() const override	{	return mPixels;	}
+	
+	SoyPixelsDef<MemFileArray>	mPixels;
+};
 
 //	gr: currently RAII so no play/pause virtuals...
 class TVideoDevice
@@ -104,7 +122,7 @@ public:
 	
 	virtual TVideoDeviceMeta	GetMeta() const=0;		//	gr: make this dynamic so other states might change
 	std::string					GetSerial() const		{	return GetMeta().mSerial;	}
-	const TVideoFrame&			GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
+	const TVideoFrameImpl&		GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
 	float						GetFps() const;			//	how many frames per sec are we averaging?
 	int							GetFrameMs() const;		//	how long does each frame take to recieve
 	void						ResetFrameCounter();	//	reset the fps counter
@@ -120,7 +138,7 @@ protected:
 	void						OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode);
 	
 public:
-	SoyEvent<const TVideoFrame>	mOnNewFrame;
+	SoyEvent<const TVideoFrameImpl>	mOnNewFrame;
 	
 private:
 	//	gr: video frame can cope without a lock,(no realloc) but the string will probably crash

@@ -107,13 +107,13 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	}
 	
 	//	grab pixels
-	auto LastFrame = Device->GetLastFrame( Error );
+	auto& LastFrame = Device->GetLastFrame( Error );
 	if ( LastFrame.IsValid() )
 	{
 		if ( AsMemFile )
 		{
 			//	make a mem file
-			auto& PixelsArray = LastFrame.mPixels.GetPixelsArray();
+			auto& PixelsArray = LastFrame.GetPixelsConst().GetPixelsArray();
 			int Sz = PixelsArray.GetDataSize();
 			auto Data = GetRemoteArray( PixelsArray.GetArray(), Sz, Sz );
 
@@ -138,7 +138,7 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 		}
 		else
 		{
-			Reply.mParams.AddDefaultParam( LastFrame.mPixels );
+			Reply.mParams.AddDefaultParam( LastFrame.GetPixelsConst() );
 		}
 	}
 	
