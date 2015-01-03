@@ -91,7 +91,7 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	TJobReply Reply( JobAndChannel );
 	
 	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
-	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",false);
+	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",true);
 
 	std::stringstream Error;
 	auto Device = mCoreVideo.GetDevice( Serial, Error );
@@ -112,24 +112,32 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	{
 		if ( AsMemFile )
 		{
-			//	make a mem file
-			auto& PixelsArray = LastFrame.GetPixelsConst().GetPixelsArray();
-			int Sz = PixelsArray.GetDataSize();
-			auto Data = GetRemoteArray( PixelsArray.GetArray(), Sz, Sz );
-
+			//	gr: todo; write STRAIGHT to memfilearray array
+			Array<char> RawSoyPixelsData;
+			LastFrame.GetPixelsConst().GetRawSoyPixels( GetArrayBridge(RawSoyPixelsData) );
+			
 			if ( !mFrameMemFile )
 			{
 				std::stringstream Filename;
-				Filename << "/frame";
-				mFrameMemFile.reset( new MemFileArray( Filename.str(), Data.GetDataSize() ) );
+				Filename << "/frame_" << Device->GetSerial();
+				mFrameMemFile.reset( new MemFileArray( Filename.str(), RawSoyPixelsData.GetDataSize() ) );
 				if ( !mFrameMemFile->IsValid() )
 					mFrameMemFile.reset();
 			}
 
 			if ( mFrameMemFile )
 			{
-				mFrameMemFile->Copy( Data );
-				Reply.mParams.AddParam("filename", mFrameMemFile->GetFilename() );
+				mFrameMemFile->Copy( RawSoyPixelsData );
+
+				//	gr: add a TYPE_MemFileWrapper here which contains a string
+				TYPE_MemFile MemFile( *mFrameMemFile );
+				Reply.mParams.AddDefaultParam( MemFile );
+				/*
+				TJobFormat Format;
+				Format.PushFirstContainer( Soy::GetTypeName<SoyPixels>() );
+				Format.PushFirstContainer( Soy::GetTypeName<std::string>() );
+				Reply.mParams.AddDefaultParam( mFrameMemFile->GetFilename(), Format );
+				 */
 			}
 			else
 			{
@@ -308,6 +316,7 @@ TPopAppError::Type PopMain(TJobParams& Params)
 
 	Array<char> Data;
 	Data.SetSize(100);
+	Data.SetAll(0x1f);
 	App.mFileManager.AllocFile( GetArrayBridge(Data) );
 	
 	//	run until something triggers exit
