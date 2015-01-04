@@ -58,6 +58,7 @@ bool TVideoDeviceMeta::operator==(const std::string& Serial) const
 
 
 TVideoDevice::TVideoDevice(std::string Serial,std::stringstream& Error) :
+	mLastFrame		( (std::stringstream() << "frame_" << Serial).str(), true ),
 	mLastError		( "waiting for first frame" ),
 	mFrameCount		( 0 )
 {
@@ -106,7 +107,11 @@ void TVideoDevice::OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode)
 {
 	mLastError.clear();
 	
-	mLastFrame.mPixels.Copy( Pixels );
+	if ( !mLastFrame.mPixels.Copy( Pixels ) )
+	{
+		mLastError = "Failed to copy pixels";
+		return;
+	}
 
 	//	gr: might want to reject earlier timecodes here
 	mLastFrame.mTimecode = Timecode;

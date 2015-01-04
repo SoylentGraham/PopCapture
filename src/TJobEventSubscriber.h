@@ -120,23 +120,12 @@ inline bool TEventSubscriptionManager_Instance<EVENTPARAM>::AddSubscriber(TJobCh
 		auto& Device = Value;
 		std::stringstream Error;
 		//	grab pixels
-		bool AsMemFile = true;
 		auto& LastFrame = Device.GetLastFrame(Error);
 		if ( LastFrame.IsValid() )
 		{
-			std::shared_ptr<MemFileArray> MemFile;
-			if ( AsMemFile )
-				MemFile = UpdateFrameMemFile( Device, Error );
-			
-			if ( MemFile )
-			{
-				TYPE_MemFile MemFileData( *MemFile );
-				Reply.mParams.AddDefaultParam( MemFileData );
-			}
-			else
-			{
-				Reply.mParams.AddDefaultParam( LastFrame.GetPixelsConst() );
-			}
+			auto& MemFile = LastFrame.mPixels.mMemFileArray;
+			TYPE_MemFile MemFileData( MemFile );
+			Reply.mParams.AddDefaultParam( MemFileData );
 		}
 		
 		//	add error if present (last frame could be out of date)

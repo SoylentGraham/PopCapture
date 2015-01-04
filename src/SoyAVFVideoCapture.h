@@ -104,13 +104,37 @@ public:
 	SoyPixels		mPixels;
 };
 
+class SoyPixelsMemFile : public SoyPixelsImpl
+{
+public:
+	SoyPixelsMemFile(std::string Filename,bool AllowOtherFilenames) :
+		mMemFileArray		( Filename, AllowOtherFilenames )
+	{
+	}
+	
+	virtual SoyPixelsMeta&				GetMeta()						{	return mMeta;	}
+	virtual const SoyPixelsMeta&		GetMeta() const					{	return mMeta;	}
+	virtual ArrayInterface<char>&		GetPixelsArray() override		{	return mMemFileArray;	}
+	virtual const ArrayInterface<char>&	GetPixelsArray() const override	{	return mMemFileArray;	}
+
+public:
+	SoyPixelsMeta		mMeta;
+	MemFileArray		mMemFileArray;
+};
+
 class TVideoFrameMemFile : public TVideoFrameImpl
 {
 public:
-	virtual SoyPixelsImpl&			GetPixels() override		{	return mPixels;	}
-	virtual const SoyPixelsImpl&	GetPixelsConst() const override	{	return mPixels;	}
+	TVideoFrameMemFile(std::string Filename,bool AllowOtherFilenames) :
+		mPixels	( Filename, AllowOtherFilenames )
+	{
+	}
 	
-	SoyPixelsDef<MemFileArray>	mPixels;
+	virtual SoyPixelsImpl&			GetPixels() override			{	return mPixels;	}
+	virtual const SoyPixelsImpl&	GetPixelsConst() const override	{	return mPixels;	}
+
+public:
+	SoyPixelsMemFile	mPixels;
 };
 
 //	gr: currently RAII so no play/pause virtuals...
@@ -122,7 +146,7 @@ public:
 	
 	virtual TVideoDeviceMeta	GetMeta() const=0;		//	gr: make this dynamic so other states might change
 	std::string					GetSerial() const		{	return GetMeta().mSerial;	}
-	const TVideoFrameImpl&		GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
+	const TVideoFrameMemFile&		GetLastFrame(std::stringstream& Error) const	{	Error << mLastError;	return mLastFrame;	}
 	float						GetFps() const;			//	how many frames per sec are we averaging?
 	int							GetFrameMs() const;		//	how long does each frame take to recieve
 	void						ResetFrameCounter();	//	reset the fps counter
@@ -143,7 +167,7 @@ public:
 private:
 	//	gr: video frame can cope without a lock,(no realloc) but the string will probably crash
 	std::string					mLastError;		//	should be empty if last frame was okay
-	TVideoFrame					mLastFrame;
+	TVideoFrameMemFile			mLastFrame;
 
 	//	fps counting
 	SoyTime						mFirstFrameTime;	//	time we got first frame
