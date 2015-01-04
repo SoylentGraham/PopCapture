@@ -108,17 +108,31 @@ class SoyPixelsMemFile : public SoyPixelsImpl
 {
 public:
 	SoyPixelsMemFile(std::string Filename,bool AllowOtherFilenames) :
-		mMemFileArray		( Filename, AllowOtherFilenames )
+		mMemFileArray		( Filename, AllowOtherFilenames ),
+		mPixelBufferBridge	( mPixelBuffer )
 	{
+	}
+
+	virtual bool						Copy(const SoyPixelsImpl& that) override
+	{
+		if ( !SoyPixelsImpl::Copy( that ) )
+			return false;
+	
+		//	update memfile
+		return GetRawSoyPixels( GetArrayBridge( mMemFileArray ) );
 	}
 	
 	virtual SoyPixelsMeta&				GetMeta()						{	return mMeta;	}
 	virtual const SoyPixelsMeta&		GetMeta() const					{	return mMeta;	}
-	virtual ArrayInterface<char>&		GetPixelsArray() override		{	return mMemFileArray;	}
-	virtual const ArrayInterface<char>&	GetPixelsArray() const override	{	return mMemFileArray;	}
+	virtual ArrayInterface<char>&		GetPixelsArray() override		{	return mPixelBufferBridge;	}
+	virtual const ArrayInterface<char>&	GetPixelsArray() const override	{	return mPixelBufferBridge;	}
 
 public:
 	SoyPixelsMeta		mMeta;
+	Array<char>			mPixelBuffer;
+	ArrayBridgeDef<Array<char>>	mPixelBufferBridge;
+
+	//	gr: we need to have some sub-array type where Meta sits at the start of the memfile...
 	MemFileArray		mMemFileArray;
 };
 
