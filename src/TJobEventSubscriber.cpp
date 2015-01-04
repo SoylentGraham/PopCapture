@@ -2,11 +2,6 @@
 #include <TChannel.h>
 #include "PopCapture.h"
 
-std::shared_ptr<MemFileArray> UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error)
-{
-	return TPopCapture::UpdateFrameMemFile( Device, Error );
-}
-
 
 
 bool TEventSubscriptionManager::SendSubscriptionJob(TJob& Job,TJobChannelMeta Client )

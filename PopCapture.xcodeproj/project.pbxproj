@@ -82,6 +82,9 @@
 
 /* Begin PBXFileReference section */
 		FB6650C81A55D92100DF0A12 /* SoyDebug.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SoyDebug.mm; path = ../ofxSoylent/src/SoyDebug.mm; sourceTree = "<group>"; };
+		FB6650D11A599AC500DF0A12 /* array.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = array.hpp; path = ../ofxSoylent/src/array.hpp; sourceTree = "<group>"; };
+		FB6650D21A599AC500DF0A12 /* bufferarray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = bufferarray.hpp; path = ../ofxSoylent/src/bufferarray.hpp; sourceTree = "<group>"; };
+		FB6650D31A599AF900DF0A12 /* SortArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SortArray.h; path = ../ofxSoylent/src/SortArray.h; sourceTree = "<group>"; };
 		FB8A05931A2E54730099596C /* PopCapture */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PopCapture; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB8A05A61A2E57700099596C /* PopApp.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = PopApp.xcconfig; path = ../PopTrack/PopApp.xcconfig; sourceTree = "<group>"; };
 		FB8A06201A2E5A200099596C /* memheap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memheap.cpp; path = ../ofxSoylent/src/memheap.cpp; sourceTree = "<group>"; };
@@ -265,6 +268,8 @@
 		FB8A06221A2E5A280099596C /* soylib */ = {
 			isa = PBXGroup;
 			children = (
+				FB6650D11A599AC500DF0A12 /* array.hpp */,
+				FB6650D21A599AC500DF0A12 /* bufferarray.hpp */,
 				FBC3A0DF1A308648009DA49E /* SoyScope.cpp */,
 				FBC3A0E01A308648009DA49E /* SoyScope.h */,
 				FB8A07141A2E6B990099596C /* sha1 */,
@@ -339,6 +344,7 @@
 				FB8A06921A2E6AB50099596C /* TSerialisation.cpp */,
 				FB8A06931A2E6AB50099596C /* TSerialisation.h */,
 				FB8A067C1A2E69340099596C /* PopMain.cpp */,
+				FB6650D31A599AF900DF0A12 /* SortArray.h */,
 				FB8A067D1A2E69340099596C /* PopMain.h */,
 				FB8A067E1A2E69340099596C /* SoyData.cpp */,
 				FB8A067F1A2E69340099596C /* SoyData.h */,

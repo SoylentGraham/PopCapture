@@ -10,12 +10,8 @@
 #include <SoyString.h>
 
 
-std::shared_ptr<MemFileArray> TPopCapture::mFrameMemFile;
-
-
 TPopCapture::TPopCapture() :
-	mSubcriberManager	( *this ),
-	mFileManager		( "soy" )
+	mSubcriberManager	( *this )
 {
 	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
 	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );
@@ -85,38 +81,6 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 	Channel.OnJobCompleted( Reply );
 }
 
-std::shared_ptr<MemFileArray> TPopCapture::UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error)
-{
-	auto& LastFrame = Device.GetLastFrame(Error);
-	if ( !Soy::Assert( LastFrame.IsValid(), "Should have already checked this" ) )
-		return nullptr;
-
-	//	get data so we can initialise memfile
-	//	gr: todo; write STRAIGHT to memfilearray array
-	Array<char> RawSoyPixelsData;
-	LastFrame.GetPixelsConst().GetRawSoyPixels( GetArrayBridge(RawSoyPixelsData) );
-	
-	auto& TargetMemFile = mFrameMemFile;
-	
-	//	alloc memfile
-	if ( !TargetMemFile )
-	{
-		std::stringstream Filename;
-		Filename << "/frame_" << Device.GetSerial();
-		TargetMemFile.reset( new MemFileArray( Filename.str(), RawSoyPixelsData.GetDataSize() ) );
-		if ( !TargetMemFile->IsValid() )
-		{
-			TargetMemFile.reset();
-			Error << "Failed to alloc memfile";
-			return nullptr;
-		}
-	}
-	
-	TargetMemFile->Copy( RawSoyPixelsData );
-
-	return TargetMemFile;
-}
-
 
 void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 {
@@ -143,19 +107,8 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto& LastFrame = Device->GetLastFrame( Error );
 	if ( LastFrame.IsValid() )
 	{
-		std::shared_ptr<MemFileArray> MemFile;
-		if ( AsMemFile )
-			MemFile = UpdateFrameMemFile( *Device, Error );
-
-		if ( MemFile )
-		{
-			TYPE_MemFile MemFile( *mFrameMemFile );
-			Reply.mParams.AddDefaultParam( MemFile );
-		}
-		else
-		{
-			Reply.mParams.AddDefaultParam( LastFrame.GetPixelsConst() );
-		}
+		TYPE_MemFile MemFile( LastFrame.mPixels.mMemFileArray );
+		Reply.mParams.AddDefaultParam( MemFile );
 	}
 	
 	//	add error if present (last frame could be out of date)
@@ -322,11 +275,6 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	};
 	CommandLineChannel->mOnJobSent.AddListener( RelayFunc );
 
-	Array<char> Data;
-	Data.SetSize(100);
-	Data.SetAll(0x1f);
-	App.mFileManager.AllocFile( GetArrayBridge(Data) );
-	
 	//	run until something triggers exit
 	App.mConsoleApp.WaitForExit();
 

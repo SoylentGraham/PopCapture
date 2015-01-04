@@ -21,14 +21,10 @@ public:
 	void			GetFrame(TJobAndChannel& JobAndChannel);
 	void			SubscribeNewFrame(TJobAndChannel& JobAndChannel);
 	
-	static std::shared_ptr<MemFileArray>	UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error);
-	
 public:
 	Soy::Platform::TConsoleApp	mConsoleApp;
 	SoyVideoCapture		mCoreVideo;
 	TSubscriberManager	mSubcriberManager;
-	static std::shared_ptr<MemFileArray>	mFrameMemFile;
-	SoyMemFileManager	mFileManager;
 };
 
 

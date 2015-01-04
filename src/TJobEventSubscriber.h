@@ -102,8 +102,6 @@ private:
 	
 };
 
-class TVideoDevice;
-std::shared_ptr<MemFileArray> UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error);
 
 
 template<typename EVENTPARAM>
