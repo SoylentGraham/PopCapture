@@ -102,7 +102,8 @@ private:
 	
 };
 
-
+class TVideoDevice;
+std::shared_ptr<MemFileArray> UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error);
 
 
 template<typename EVENTPARAM>
@@ -112,13 +113,40 @@ inline bool TEventSubscriptionManager_Instance<EVENTPARAM>::AddSubscriber(TJobCh
 	std::function<void(EVENTPARAM&)> ListenerCallback = [this,Client](EVENTPARAM& Value)
 	{
 		TJob OutputJob;
+		auto& Reply = OutputJob;
 		
-		OutputJob.mParams.AddDefaultParam( Value.GetPixelsConst() );
+		//	gr; obviously need to make this generic
+		
+		auto& Device = Value;
+		std::stringstream Error;
+		//	grab pixels
+		bool AsMemFile = true;
+		auto& LastFrame = Device.GetLastFrame(Error);
+		if ( LastFrame.IsValid() )
+		{
+			std::shared_ptr<MemFileArray> MemFile;
+			if ( AsMemFile )
+				MemFile = UpdateFrameMemFile( Device, Error );
+			
+			if ( MemFile )
+			{
+				TYPE_MemFile MemFileData( *MemFile );
+				Reply.mParams.AddDefaultParam( MemFileData );
+			}
+			else
+			{
+				Reply.mParams.AddDefaultParam( LastFrame.GetPixelsConst() );
+			}
+		}
+		
+		//	add error if present (last frame could be out of date)
+		if ( !Error.str().empty() )
+			Reply.mParams.AddErrorParam( Error.str() );
 		
 		//	find channel, send to Client
 	//	std::Debug << "Got event callback to send to " << Client << std::endl;
 		
-		if ( !this->SendSubscriptionJob( OutputJob, Client ) )
+		if ( !this->SendSubscriptionJob( Reply, Client ) )
 		{
 			//	unsubscibe on failure!
 		}

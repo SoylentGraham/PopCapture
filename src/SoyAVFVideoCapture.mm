@@ -117,7 +117,7 @@ void TVideoDevice::OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode)
 	if ( !mFirstFrameTime.IsValid() )
 		mFirstFrameTime = mLastFrameTime;
 	
-	mOnNewFrame.OnTriggered( mLastFrame );
+	mOnNewFrame.OnTriggered( *this );
 }
 
 

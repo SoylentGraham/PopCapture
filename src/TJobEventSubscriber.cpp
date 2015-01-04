@@ -2,6 +2,12 @@
 #include <TChannel.h>
 #include "PopCapture.h"
 
+std::shared_ptr<MemFileArray> UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error)
+{
+	return TPopCapture::UpdateFrameMemFile( Device, Error );
+}
+
+
 
 bool TEventSubscriptionManager::SendSubscriptionJob(TJob& Job,TJobChannelMeta Client )
 {
@@ -21,11 +27,11 @@ bool TEventSubscriptionManager::SendSubscriptionJob(TJob& Job,TJobChannelMeta Cl
 	//	send to client
 	if ( !Channel->SendCommand( Job ) )
 	{
-		std::Debug << "Failed to send job " << Job.mParams.mCommand << " to " << Client << std::endl;
+	//	std::Debug << "Failed to send job " << Job.mParams.mCommand << " to " << Client << std::endl;
 		return false;
 	}
 	
-	std::Debug << "Sending subscription job(" << Job.mParams.mCommand << ") to " << Client << "; " << Job.mParams << std::endl;
+	//std::Debug << "Sending subscription job(" << Job.mParams.mCommand << ") to " << Client << "; " << Job.mParams << std::endl;
 	
 	return false;
 }

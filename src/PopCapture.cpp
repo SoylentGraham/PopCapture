@@ -10,6 +10,8 @@
 #include <SoyString.h>
 
 
+std::shared_ptr<MemFileArray> TPopCapture::mFrameMemFile;
+
 
 TPopCapture::TPopCapture() :
 	mSubcriberManager	( *this ),
@@ -83,6 +85,37 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 	Channel.OnJobCompleted( Reply );
 }
 
+std::shared_ptr<MemFileArray> TPopCapture::UpdateFrameMemFile(TVideoDevice& Device,std::stringstream& Error)
+{
+	auto& LastFrame = Device.GetLastFrame(Error);
+	if ( !Soy::Assert( LastFrame.IsValid(), "Should have already checked this" ) )
+		return nullptr;
+
+	//	get data so we can initialise memfile
+	//	gr: todo; write STRAIGHT to memfilearray array
+	Array<char> RawSoyPixelsData;
+	LastFrame.GetPixelsConst().GetRawSoyPixels( GetArrayBridge(RawSoyPixelsData) );
+	
+	auto& TargetMemFile = mFrameMemFile;
+	
+	//	alloc memfile
+	if ( !TargetMemFile )
+	{
+		std::stringstream Filename;
+		Filename << "/frame_" << Device.GetSerial();
+		TargetMemFile.reset( new MemFileArray( Filename.str(), RawSoyPixelsData.GetDataSize() ) );
+		if ( !TargetMemFile->IsValid() )
+		{
+			TargetMemFile.reset();
+			Error << "Failed to alloc memfile";
+			return nullptr;
+		}
+	}
+	
+	TargetMemFile->Copy( RawSoyPixelsData );
+
+	return TargetMemFile;
+}
 
 
 void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
@@ -110,39 +143,14 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto& LastFrame = Device->GetLastFrame( Error );
 	if ( LastFrame.IsValid() )
 	{
+		std::shared_ptr<MemFileArray> MemFile;
 		if ( AsMemFile )
+			MemFile = UpdateFrameMemFile( *Device, Error );
+
+		if ( MemFile )
 		{
-			//	gr: todo; write STRAIGHT to memfilearray array
-			Array<char> RawSoyPixelsData;
-			LastFrame.GetPixelsConst().GetRawSoyPixels( GetArrayBridge(RawSoyPixelsData) );
-			
-			if ( !mFrameMemFile )
-			{
-				std::stringstream Filename;
-				Filename << "/frame_" << Device->GetSerial();
-				mFrameMemFile.reset( new MemFileArray( Filename.str(), RawSoyPixelsData.GetDataSize() ) );
-				if ( !mFrameMemFile->IsValid() )
-					mFrameMemFile.reset();
-			}
-
-			if ( mFrameMemFile )
-			{
-				mFrameMemFile->Copy( RawSoyPixelsData );
-
-				//	gr: add a TYPE_MemFileWrapper here which contains a string
-				TYPE_MemFile MemFile( *mFrameMemFile );
-				Reply.mParams.AddDefaultParam( MemFile );
-				/*
-				TJobFormat Format;
-				Format.PushFirstContainer( Soy::GetTypeName<SoyPixels>() );
-				Format.PushFirstContainer( Soy::GetTypeName<std::string>() );
-				Reply.mParams.AddDefaultParam( mFrameMemFile->GetFilename(), Format );
-				 */
-			}
-			else
-			{
-				Error << "Failed to alloc memfile";
-			}
+			TYPE_MemFile MemFile( *mFrameMemFile );
+			Reply.mParams.AddDefaultParam( MemFile );
 		}
 		else
 		{

@@ -138,7 +138,7 @@ protected:
 	void						OnNewFrame(const SoyPixelsImpl& Pixels,SoyTime Timecode);
 	
 public:
-	SoyEvent<const TVideoFrameImpl>	mOnNewFrame;
+	SoyEvent<TVideoDevice>		mOnNewFrame;
 	
 private:
 	//	gr: video frame can cope without a lock,(no realloc) but the string will probably crash
