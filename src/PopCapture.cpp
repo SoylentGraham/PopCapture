@@ -13,6 +13,10 @@
 TPopCapture::TPopCapture() :
 	mSubcriberManager	( *this )
 {
+	//	add video contaienr
+	std::shared_ptr<SoyVideoContainer> AvFoundationContainer( new SoyVideoContainer_AvFoundation() );
+	mVideoCapture.AddContainer( AvFoundationContainer );
+	
 	AddJobHandler("exit", TParameterTraits(), *this, &TPopCapture::OnExit );
 	AddJobHandler("list", TParameterTraits(), *this, &TPopCapture::OnListDevices );
 
@@ -54,7 +58,7 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 	TJobReply Reply( JobAndChannel );
 
 	Array<TVideoDeviceMeta> Metas;
-	mCoreVideo.GetDevices( GetArrayBridge(Metas) );
+	mVideoCapture.GetDevices( GetArrayBridge(Metas) );
 
 	std::stringstream MetasString;
 	for ( int i=0;	i<Metas.GetSize();	i++ )
@@ -91,7 +95,7 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",true);
 
 	std::stringstream Error;
-	auto Device = mCoreVideo.GetDevice( Serial, Error );
+	auto Device = mVideoCapture.GetDevice( Serial, Error );
 	
 	if ( !Device )
 	{
@@ -136,7 +140,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 
 	//	get device
 	auto Serial = Job.mParams.GetParamAs<std::string>("serial");
-	auto Device = mCoreVideo.GetDevice( Serial, Error );
+	auto Device = mVideoCapture.GetDevice( Serial, Error );
 	if ( !Device )
 	{
 		std::stringstream ReplyError;

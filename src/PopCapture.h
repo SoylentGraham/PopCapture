@@ -23,7 +23,7 @@ public:
 	
 public:
 	Soy::Platform::TConsoleApp	mConsoleApp;
-	SoyVideoCapture		mCoreVideo;
+	SoyVideoCapture		mVideoCapture;
 	TSubscriberManager	mSubcriberManager;
 };
 
