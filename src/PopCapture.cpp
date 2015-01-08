@@ -166,7 +166,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 	
 	//	make a lambda to recieve the event
 	auto Client = Job.mChannelMeta;
-	std::function<void(TEventSubscriptionManager&,TVideoDevice&)> ListenerCallback = [Client](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
+	TEventSubscriptionCallback<TVideoDevice> ListenerCallback = [Client](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
 	{
 		TJob OutputJob;
 		auto& Reply = OutputJob;
@@ -190,9 +190,9 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		//	std::Debug << "Got event callback to send to " << Client << std::endl;
 		
 		if ( !SubscriptionManager.SendSubscriptionJob( Reply, Client ) )
-		{
-			//	unsubscibe on failure!
-		}
+			return false;
+		
+		return true;
 	};
 	
 	//	subscribe this caller
