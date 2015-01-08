@@ -52,7 +52,6 @@ void TPopCapture::OnExit(TJobAndChannel& JobAndChannel)
 	Channel.OnJobCompleted( Reply );
 }
 
-
 void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 {
 	TJobReply Reply( JobAndChannel );
@@ -67,16 +66,7 @@ void TPopCapture::OnListDevices(TJobAndChannel& JobAndChannel)
 		if ( i > 0 )
 			MetasString << ",";
 
-		MetasString << Meta.mName << "[" << Meta.mSerial << "]";
-		if ( Meta.mVideo )	MetasString << " +Video";
-		if ( Meta.mAudio )	MetasString << " +Audio";
-		if ( Meta.mText )	MetasString << " +Text";
-		if ( Meta.mClosedCaption )	MetasString << " +ClosedCaption";
-		if ( Meta.mSubtitle )	MetasString << " +Subtitle";
-		if ( Meta.mTimecode )	MetasString << " +Timecode";
-		if ( Meta.mTimedMetadata )	MetasString << " +TimedMetadata";
-		if ( Meta.mMetadata )	MetasString << " +Metadata";
-		if ( Meta.mMuxed )	MetasString << " +Muxed";
+		MetasString << Meta;
 	}
 	
 	Reply.mParams.AddDefaultParam( MetasString.str() );
