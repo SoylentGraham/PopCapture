@@ -171,8 +171,6 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		TJob OutputJob;
 		auto& Reply = OutputJob;
 		
-		//	gr; obviously need to make this generic
-		
 		auto& Device = Value;
 		std::stringstream Error;
 		//	grab pixels
