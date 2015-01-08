@@ -60,13 +60,13 @@
 		FB8A07171A2E6BBF0099596C /* sha1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A07151A2E6BBF0099596C /* sha1.cpp */; };
 		FB8A071A1A2E6C3E0099596C /* PopCapture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A07181A2E6C3E0099596C /* PopCapture.cpp */; };
 		FB92F3401A5E9524001868E8 /* SoyVideoDevice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB92F33E1A5E9524001868E8 /* SoyVideoDevice.cpp */; };
+		FB92F3461A5ECF09001868E8 /* TJobEventSubscriber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB92F3441A5ECF09001868E8 /* TJobEventSubscriber.cpp */; };
 		FBB328451A2E742E003DE7AA /* SoyAVFVideoCapture.mm in Sources */ = {isa = PBXBuildFile; fileRef = FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */; };
 		FBB328471A2E7591003DE7AA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328461A2E7591003DE7AA /* AVFoundation.framework */; };
 		FBB3284A1A2E75D4003DE7AA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328481A2E75D4003DE7AA /* CoreMedia.framework */; };
 		FBB3284B1A2E75D4003DE7AA /* CoreMediaIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB328491A2E75D4003DE7AA /* CoreMediaIO.framework */; };
 		FBB3284D1A2E75EF003DE7AA /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */; };
 		FBC3A0E11A308648009DA49E /* SoyScope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBC3A0DF1A308648009DA49E /* SoyScope.cpp */; };
-		FBC3A0E41A326891009DA49E /* TJobEventSubscriber.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FBC3A0E31A326891009DA49E /* TJobEventSubscriber.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -203,6 +203,8 @@
 		FB8A07191A2E6C3E0099596C /* PopCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PopCapture.h; path = src/PopCapture.h; sourceTree = SOURCE_ROOT; };
 		FB92F33E1A5E9524001868E8 /* SoyVideoDevice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoyVideoDevice.cpp; path = ../ofxSoylent/src/SoyVideoDevice.cpp; sourceTree = "<group>"; };
 		FB92F33F1A5E9524001868E8 /* SoyVideoDevice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyVideoDevice.h; path = ../ofxSoylent/src/SoyVideoDevice.h; sourceTree = "<group>"; };
+		FB92F3441A5ECF09001868E8 /* TJobEventSubscriber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TJobEventSubscriber.cpp; path = ../PopTrack/src/TJobEventSubscriber.cpp; sourceTree = "<group>"; };
+		FB92F3451A5ECF09001868E8 /* TJobEventSubscriber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TJobEventSubscriber.h; path = ../PopTrack/src/TJobEventSubscriber.h; sourceTree = "<group>"; };
 		FBB328431A2E742E003DE7AA /* SoyAVFVideoCapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyAVFVideoCapture.h; path = src/SoyAVFVideoCapture.h; sourceTree = SOURCE_ROOT; };
 		FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SoyAVFVideoCapture.mm; path = src/SoyAVFVideoCapture.mm; sourceTree = SOURCE_ROOT; };
 		FBB328461A2E7591003DE7AA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
@@ -211,8 +213,6 @@
 		FBB3284C1A2E75EF003DE7AA /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FBC3A0DF1A308648009DA49E /* SoyScope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoyScope.cpp; path = ../ofxSoylent/src/SoyScope.cpp; sourceTree = "<group>"; };
 		FBC3A0E01A308648009DA49E /* SoyScope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyScope.h; path = ../ofxSoylent/src/SoyScope.h; sourceTree = "<group>"; };
-		FBC3A0E21A32656F009DA49E /* TJobEventSubscriber.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = TJobEventSubscriber.h; path = src/TJobEventSubscriber.h; sourceTree = SOURCE_ROOT; };
-		FBC3A0E31A326891009DA49E /* TJobEventSubscriber.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TJobEventSubscriber.cpp; path = src/TJobEventSubscriber.cpp; sourceTree = SOURCE_ROOT; };
 		FBC3A0E51A328A56009DA49E /* websrc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = websrc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -260,8 +260,6 @@
 			children = (
 				FBB328431A2E742E003DE7AA /* SoyAVFVideoCapture.h */,
 				FBB328441A2E742E003DE7AA /* SoyAVFVideoCapture.mm */,
-				FBC3A0E21A32656F009DA49E /* TJobEventSubscriber.h */,
-				FBC3A0E31A326891009DA49E /* TJobEventSubscriber.cpp */,
 				FB8A07181A2E6C3E0099596C /* PopCapture.cpp */,
 				FB8A07191A2E6C3E0099596C /* PopCapture.h */,
 			);
@@ -321,6 +319,8 @@
 		FB8A067B1A2E68C20099596C /* poplib */ = {
 			isa = PBXGroup;
 			children = (
+				FB92F3441A5ECF09001868E8 /* TJobEventSubscriber.cpp */,
+				FB92F3451A5ECF09001868E8 /* TJobEventSubscriber.h */,
 				FB8A07111A2E6B880099596C /* TParameters.cpp */,
 				FB8A07121A2E6B880099596C /* TParameters.h */,
 				FB8A06A91A2E6B040099596C /* Unittest++ */,
@@ -496,7 +496,6 @@
 				FBB328451A2E742E003DE7AA /* SoyAVFVideoCapture.mm in Sources */,
 				FB8A06801A2E69340099596C /* PopMain.cpp in Sources */,
 				FBC3A0E11A308648009DA49E /* SoyScope.cpp in Sources */,
-				FBC3A0E41A326891009DA49E /* TJobEventSubscriber.cpp in Sources */,
 				FB8A06671A2E5A7C0099596C /* SoyTime.cpp in Sources */,
 				FB8A06ED1A2E6B520099596C /* AssertException.cpp in Sources */,
 				FB8A06661A2E5A7C0099596C /* SoyThread.cpp in Sources */,
@@ -505,6 +504,7 @@
 				FB8A069B1A2E6AB50099596C /* TProtocolWebSocket.cpp in Sources */,
 				FB8A06F71A2E6B520099596C /* TestDetails.cpp in Sources */,
 				FB8A06991A2E6AB50099596C /* TProtocolHttp.cpp in Sources */,
+				FB92F3461A5ECF09001868E8 /* TJobEventSubscriber.cpp in Sources */,
 				FB6650C91A55D92100DF0A12 /* SoyDebug.mm in Sources */,
 				FB8A06A51A2E6AF80099596C /* TChannel.cpp in Sources */,
 				FB8A070E1A2E6B520099596C /* TimeConstraint.cpp in Sources */,

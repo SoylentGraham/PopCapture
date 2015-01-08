@@ -3,7 +3,7 @@
 #include <SoyApp.h>
 #include <TJob.h>
 #include "SoyAVFVideoCapture.h"
-#include "TJobEventSubscriber.h"
+#include <TJobEventSubscriber.h>
 #include <TChannel.h>
 
 

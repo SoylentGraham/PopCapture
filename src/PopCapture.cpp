@@ -155,8 +155,41 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		return;
 	}
 	
+	//	make a lambda to recieve the event
+	auto Client = Job.mChannelMeta;
+	std::function<void(TEventSubscriptionManager&,TVideoDevice&)> ListenerCallback = [Client](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
+	{
+		TJob OutputJob;
+		auto& Reply = OutputJob;
+		
+		//	gr; obviously need to make this generic
+		
+		auto& Device = Value;
+		std::stringstream Error;
+		//	grab pixels
+		auto& LastFrame = Device.GetLastFrame(Error);
+		if ( LastFrame.IsValid() )
+		{
+			auto& MemFile = LastFrame.mPixels.mMemFileArray;
+			TYPE_MemFile MemFileData( MemFile );
+			Reply.mParams.AddDefaultParam( MemFileData );
+		}
+		
+		//	add error if present (last frame could be out of date)
+		if ( !Error.str().empty() )
+			Reply.mParams.AddErrorParam( Error.str() );
+		
+		//	find channel, send to Client
+		//	std::Debug << "Got event callback to send to " << Client << std::endl;
+		
+		if ( !SubscriptionManager.SendSubscriptionJob( Reply, Client ) )
+		{
+			//	unsubscibe on failure!
+		}
+	};
+	
 	//	subscribe this caller
-	if ( !Event->AddSubscriber( Job.mChannelMeta, Error ) )
+	if ( !Event->AddSubscriber( Job.mChannelMeta, ListenerCallback, Error ) )
 	{
 		std::stringstream ReplyError;
 		ReplyError << "Failed to add subscriber to event " << EventName << ". " << Error.str();
