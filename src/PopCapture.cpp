@@ -101,10 +101,19 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto& LastFrame = Device->GetLastFrame( Error );
 	if ( LastFrame.IsValid() )
 	{
-		TYPE_MemFile MemFile( LastFrame.mPixels.mMemFileArray );
-		Reply.mParams.AddDefaultParam( MemFile );
+		if ( AsMemFile )
+		{
+			TYPE_MemFile MemFile( LastFrame.mPixels.mMemFileArray );
+			Reply.mParams.AddDefaultParam( MemFile );
+		}
+		else
+		{
+			SoyPixels Pixels;
+			Pixels.Copy( LastFrame.mPixels );
+			Reply.mParams.AddDefaultParam( Pixels );
+		}
 	}
-	
+
 	//	add error if present (last frame could be out of date)
 	if ( !Error.str().empty() )
 		Reply.mParams.AddErrorParam( Error.str() );
