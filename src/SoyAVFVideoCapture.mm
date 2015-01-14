@@ -178,13 +178,13 @@ void TVideoDevice_AvFoundation::GetDevices(ArrayBridge<TVideoDeviceMeta>& Metas)
 
 
 
-TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(std::string Serial,std::stringstream& Error) :
-	TVideoDevice				( Serial, Error ),
+TVideoDevice_AvFoundation::TVideoDevice_AvFoundation(const TVideoDeviceMeta& Meta,std::stringstream& Error) :
+	TVideoDevice				( Meta, Error ),
 	mConfigurationStackCounter	( 0 ),
 	mWrapper					( new AVCaptureSessionWrapper(*this) )
 {
 	TVideoDeviceParams Params;
-	run( Serial, Params, Error );
+	run( Meta.mSerial, Params, Error );
 	if ( !Error.str().empty() )
 		OnFailedFrame( Error.str() );
 }
@@ -621,7 +621,7 @@ void SoyVideoContainer_AvFoundation::GetDevices(ArrayBridge<TVideoDeviceMeta>& M
 	TVideoDevice_AvFoundation::GetDevices( Metas );
 }
 
-std::shared_ptr<TVideoDevice> SoyVideoContainer_AvFoundation::AllocDevice(const std::string& Serial,std::stringstream& Error)
+std::shared_ptr<TVideoDevice> SoyVideoContainer_AvFoundation::AllocDevice(const TVideoDeviceMeta& Meta,std::stringstream& Error)
 {
-	return std::shared_ptr<TVideoDevice>( new TVideoDevice_AvFoundation( Serial, Error ) );
+	return std::shared_ptr<TVideoDevice>( new TVideoDevice_AvFoundation( Meta, Error ) );
 }

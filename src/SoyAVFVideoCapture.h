@@ -12,7 +12,7 @@ public:
 	static void					GetDevices(ArrayBridge<TVideoDeviceMeta>& Metas);
 	
 public:
-	TVideoDevice_AvFoundation(std::string Serial,std::stringstream& Error);
+	TVideoDevice_AvFoundation(const TVideoDeviceMeta& Meta,std::stringstream& Error);
 	virtual ~TVideoDevice_AvFoundation();
 	
 	virtual TVideoDeviceMeta	GetMeta() const override;		//	gr: make this dynamic so other states might change
@@ -42,6 +42,6 @@ class SoyVideoContainer_AvFoundation : public SoyVideoContainer
 {
 public:
 	virtual void					GetDevices(ArrayBridge<TVideoDeviceMeta>& Metas) override;
-	virtual std::shared_ptr<TVideoDevice>	AllocDevice(const std::string& Serial,std::stringstream& Error) override;
+	virtual std::shared_ptr<TVideoDevice>	AllocDevice(const TVideoDeviceMeta& Meta,std::stringstream& Error) override;
 	
 };
