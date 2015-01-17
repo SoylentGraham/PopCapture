@@ -180,8 +180,13 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 			auto& MemFile = LastFrame.mPixels.mMemFileArray;
 			TYPE_MemFile MemFileData( MemFile );
 			Reply.mParams.AddDefaultParam( MemFileData );
+
+			Reply.mParams.AddParam("timecode", LastFrame.mTimecode );
 		}
 		
+		//	add other meta
+		Reply.mParams.AddParam("serial", Device.GetSerial() );
+	
 		//	add error if present (last frame could be out of date)
 		if ( !Error.str().empty() )
 			Reply.mParams.AddErrorParam( Error.str() );
