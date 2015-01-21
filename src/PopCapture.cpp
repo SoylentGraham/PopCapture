@@ -104,7 +104,11 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 		if ( AsMemFile )
 		{
 			TYPE_MemFile MemFile( LastFrame.mPixels.mMemFileArray );
-			Reply.mParams.AddDefaultParam( MemFile );
+			TJobFormat Format;
+			Format.PushFirstContainer( Soy::GetTypeName<SoyPixels>() );
+			Format.PushFirstContainer( Soy::GetTypeName<Array<char>>() );
+			Format.PushFirstContainer( Soy::GetTypeName<TYPE_MemFile>() );
+			Reply.mParams.AddDefaultParam( MemFile, Format );
 		}
 		else
 		{
@@ -294,7 +298,7 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	auto HttpChannel = CreateChannelFromInputString("http:8080-8090", SoyRef("http") );
 	auto WebSocketChannel = CreateChannelFromInputString("ws:json:9090-9099", SoyRef("websock") );
 	//auto WebSocketChannel = CreateChannelFromInputString("ws:cli:9090-9099", SoyRef("websock") );
-	auto SocksChannel = CreateChannelFromInputString("cli:7070-7079", SoyRef("socks") );
+	auto SocksChannel = CreateChannelFromInputString("cli:7070", SoyRef("socks") );
 	
 	App.AddChannel( CommandLineChannel );
 	App.AddChannel( StdioChannel );
