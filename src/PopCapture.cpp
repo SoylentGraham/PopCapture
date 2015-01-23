@@ -8,6 +8,7 @@
 #include <TJobRelay.h>
 #include <SoyPixels.h>
 #include <SoyString.h>
+#include <SoyJson.h>	//	just for test
 
 
 TPopCapture::TPopCapture() :
@@ -228,6 +229,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 }
 
 
+
 class TChannelLiteral : public TChannel
 {
 public:
@@ -285,6 +287,8 @@ std::shared_ptr<TChannel> gStdioChannel;
 
 TPopAppError::Type PopMain(TJobParams& Params)
 {
+	SoyJson::UnitTest();
+	
 	std::cout << Params << std::endl;
 	
 	//	job handler

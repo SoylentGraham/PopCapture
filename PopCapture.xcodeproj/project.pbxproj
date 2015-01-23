@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB63E5161A7069C1002C59BE /* SoyJson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB63E5141A7069C1002C59BE /* SoyJson.cpp */; };
 		FB6650C91A55D92100DF0A12 /* SoyDebug.mm in Sources */ = {isa = PBXBuildFile; fileRef = FB6650C81A55D92100DF0A12 /* SoyDebug.mm */; };
 		FB8A06211A2E5A200099596C /* memheap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A06201A2E5A200099596C /* memheap.cpp */; };
 		FB8A06531A2E5A7C0099596C /* SoyApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FB8A06241A2E5A7C0099596C /* SoyApp.cpp */; };
@@ -82,6 +83,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FB63E5141A7069C1002C59BE /* SoyJson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoyJson.cpp; path = ../ofxSoylent/src/SoyJson.cpp; sourceTree = "<group>"; };
+		FB63E5151A7069C1002C59BE /* SoyJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyJson.h; path = ../ofxSoylent/src/SoyJson.h; sourceTree = "<group>"; };
 		FB6650C81A55D92100DF0A12 /* SoyDebug.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SoyDebug.mm; path = ../ofxSoylent/src/SoyDebug.mm; sourceTree = "<group>"; };
 		FB6650D11A599AC500DF0A12 /* array.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = array.hpp; path = ../ofxSoylent/src/array.hpp; sourceTree = "<group>"; };
 		FB6650D21A599AC500DF0A12 /* bufferarray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = bufferarray.hpp; path = ../ofxSoylent/src/bufferarray.hpp; sourceTree = "<group>"; };
@@ -295,6 +298,8 @@
 				FB8A063A1A2E5A7C0099596C /* SoyPixels.h */,
 				FB8A063B1A2E5A7C0099596C /* SoyPng.cpp */,
 				FB8A063C1A2E5A7C0099596C /* SoyPng.h */,
+				FB63E5141A7069C1002C59BE /* SoyJson.cpp */,
+				FB63E5151A7069C1002C59BE /* SoyJson.h */,
 				FB8A063D1A2E5A7C0099596C /* SoyRef.cpp */,
 				FB8A063E1A2E5A7C0099596C /* SoyRef.h */,
 				FB8A06431A2E5A7C0099596C /* SoyState.h */,
@@ -535,6 +540,7 @@
 				FB8A06951A2E6AB50099596C /* TJobFormat.cpp in Sources */,
 				FB8A06F41A2E6B520099596C /* TimeHelpers.cpp in Sources */,
 				FB8A06961A2E6AB50099596C /* TJobRelay.cpp in Sources */,
+				FB63E5161A7069C1002C59BE /* SoyJson.cpp in Sources */,
 				FB8A06FB1A2E6B520099596C /* TestResults.cpp in Sources */,
 				FB8A065D1A2E5A7C0099596C /* SoyPixels.cpp in Sources */,
 				FB8A06211A2E5A200099596C /* memheap.cpp in Sources */,
