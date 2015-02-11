@@ -7,7 +7,7 @@
 #include <SoyScope.h>
 #include <SoyString.h>
 #include <SortArray.h>
-
+#include <RemoteArray.h>
 
 TVideoDeviceMeta GetDeviceMeta(AVCaptureDevice* Device)
 {
@@ -94,8 +94,8 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 	int Height = int(CVPixelBufferGetHeight(imageBuffer));
 
 	auto Data = static_cast<char*>(CVPixelBufferGetBaseAddress(imageBuffer));
-	int DataSize = int(CVPixelBufferGetDataSize(imageBuffer));
-	auto DataArray = GetRemoteArray( Data, DataSize, DataSize );
+	auto DataSize = CVPixelBufferGetDataSize(imageBuffer);
+	auto DataArray = GetRemoteArray( Data, DataSize );
 	int rowSize = int(CVPixelBufferGetBytesPerRow(imageBuffer));
 	int ChannelCount = rowSize / Width;
 	
