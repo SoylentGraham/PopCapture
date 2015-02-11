@@ -238,6 +238,7 @@ function MakeSubscribeGetFrameButton($ParentElement)
 		var This = e.toElement;
 		var $Job = new SoyJob('subscribenewframe');
 		$Job.serial = $InputSerial.value;
+		$Job.memfile = '0';	//	false
 		SendJob($Job);
 	};
 	$Button.onclick = $OnClick;
@@ -256,6 +257,7 @@ function MakeGetFrameButton($ParentElement)
 		var This = e.toElement;
 		var $Job = new SoyJob('getframe');
 		$Job.serial = $InputSerial.value;
+		$Job.memfile = '0';	//	false
 		SendJob($Job);
 	};
 	$Button.onclick = $OnClick;
