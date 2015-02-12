@@ -237,41 +237,49 @@ std::shared_ptr<TChannel> gStdioChannel;
 
 TPopAppError::Type PopMain(TJobParams& Params)
 {
-	SoyJson::UnitTest();
-	
-	std::cout << Params << std::endl;
+	//	in future, we're ALWAYS in child mode and caller/bootup.txt can specify what channels to create etc
+	bool ChildProcessMode = Params.GetParamAsWithDefault("childmode", false );
+
+	//	dont debug to stdout if we're using it for comms!
+	if ( ChildProcessMode )
+		std::Debug.EnableStdOut(false);
 	
 	//	job handler
 	TPopCapture App;
 
-	auto CommandLineChannel = std::shared_ptr<TChan<TChannelLiteral,TProtocolCli>>( new TChan<TChannelLiteral,TProtocolCli>( SoyRef("cmdline") ) );
-	
-	//	create stdio channel for commandline output
+	//	create stdio channel
 	auto StdioChannel = CreateChannelFromInputString("std:", SoyRef("stdio") );
-	gStdioChannel = StdioChannel;
-	auto HttpChannel = CreateChannelFromInputString("http:8080-8090", SoyRef("http") );
-	auto WebSocketChannel = CreateChannelFromInputString("ws:json:9090-9099", SoyRef("websock") );
-	//auto WebSocketChannel = CreateChannelFromInputString("ws:cli:9090-9099", SoyRef("websock") );
-	auto SocksChannel = CreateChannelFromInputString("cli:7070", SoyRef("socks") );
-	
-	App.AddChannel( CommandLineChannel );
 	App.AddChannel( StdioChannel );
-	App.AddChannel( HttpChannel );
-	App.AddChannel( WebSocketChannel );
-	App.AddChannel( SocksChannel );
 
-	//	when the commandline SENDs a command (a reply), send it to stdout
-	auto RelayFunc = [](TJobAndChannel& JobAndChannel)
+	
+	if ( !ChildProcessMode )
 	{
-		if ( !gStdioChannel )
-			return;
-		TJob Job = JobAndChannel;
-		Job.mChannelMeta.mChannelRef = gStdioChannel->GetChannelRef();
-		Job.mChannelMeta.mClientRef = SoyRef();
-		gStdioChannel->SendCommand( Job );
-	};
-	CommandLineChannel->mOnJobSent.AddListener( RelayFunc );
+		auto CommandLineChannel = std::shared_ptr<TChan<TChannelLiteral,TProtocolCli>>( new TChan<TChannelLiteral,TProtocolCli>( SoyRef("cmdline") ) );
+		App.AddChannel( CommandLineChannel );
 
+		auto HttpChannel = CreateChannelFromInputString("http:8080-8090", SoyRef("http") );
+		auto WebSocketChannel = CreateChannelFromInputString("ws:json:9090-9099", SoyRef("websock") );
+		//auto WebSocketChannel = CreateChannelFromInputString("ws:cli:9090-9099", SoyRef("websock") );
+		auto SocksChannel = CreateChannelFromInputString("cli:7070", SoyRef("socks") );
+	
+		App.AddChannel( HttpChannel );
+		App.AddChannel( WebSocketChannel );
+		App.AddChannel( SocksChannel );
+	
+		//	when the commandline SENDs a command (a reply), send it to stdout
+		auto RelayFunc = [](TJobAndChannel& JobAndChannel)
+		{
+			if ( !gStdioChannel )
+				return;
+			TJob Job = JobAndChannel;
+			Job.mChannelMeta.mChannelRef = gStdioChannel->GetChannelRef();
+			Job.mChannelMeta.mClientRef = SoyRef();
+			gStdioChannel->SendCommand( Job );
+		};
+		gStdioChannel = StdioChannel;
+		CommandLineChannel->mOnJobSent.AddListener( RelayFunc );
+	}
+	
 	//	run until something triggers exit
 	App.mConsoleApp.WaitForExit();
 
