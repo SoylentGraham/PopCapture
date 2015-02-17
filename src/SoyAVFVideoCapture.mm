@@ -120,6 +120,10 @@ void AVCaptureSessionWrapper::handleSampleBuffer(CMSampleBufferRef sampleBuffer)
 	}
 
 	Pixels.GetPixelsArray().Copy( DataArray );
+	
+	//Pixels.ResizeFastSample(400,400);
+	Pixels.RotateFlip();
+
 	mParent.OnNewFrame( Pixels, SoyTime() );
 }
 
