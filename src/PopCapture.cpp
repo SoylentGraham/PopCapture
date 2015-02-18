@@ -155,6 +155,8 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		Channel.OnJobCompleted( Reply );
 		return;
 	}
+	
+	auto AsMemFile = Job.mParams.GetParamAsWithDefault<bool>("memfile",false);
 
 	//	create new subscription for it
 	//	gr: determine if this already exists!
@@ -172,7 +174,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 	
 	//	make a lambda to recieve the event
 	auto Client = Job.mChannelMeta;
-	TEventSubscriptionCallback<TVideoDevice> ListenerCallback = [Client](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
+	TEventSubscriptionCallback<TVideoDevice> ListenerCallback = [Client,AsMemFile](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
 	{
 		TJob OutputJob;
 		auto& Reply = OutputJob;
@@ -183,10 +185,19 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		auto& LastFrame = Device.GetLastFrame(Error);
 		if ( LastFrame.IsValid() )
 		{
-			auto& MemFile = LastFrame.mPixels.mMemFileArray;
-			TYPE_MemFile MemFileData( MemFile );
-			Reply.mParams.AddDefaultParam( MemFileData );
-
+			if ( AsMemFile )
+			{
+				auto& MemFile = LastFrame.mPixels.mMemFileArray;
+				TYPE_MemFile MemFileData( MemFile );
+				Reply.mParams.AddDefaultParam( MemFileData );
+			}
+			else
+			{
+				SoyPixels Pixels;
+				Pixels.Copy( LastFrame.mPixels );
+				Reply.mParams.AddDefaultParam( Pixels );
+			}
+			
 			Reply.mParams.AddParam("timecode", LastFrame.mTimecode );
 		}
 		
@@ -239,6 +250,7 @@ TPopAppError::Type PopMain(TJobParams& Params)
 {
 	//	in future, we're ALWAYS in child mode and caller/bootup.txt can specify what channels to create etc
 	bool ChildProcessMode = Params.GetParamAsWithDefault("childmode", false );
+	bool BinaryStdio = Params.GetParamAsWithDefault("binarystdio", false );
 
 	//	dont debug to stdout if we're using it for comms!
 	if ( ChildProcessMode )
@@ -248,9 +260,20 @@ TPopAppError::Type PopMain(TJobParams& Params)
 	TPopCapture App;
 
 	//	create stdio channel
-	auto StdioChannel = CreateChannelFromInputString("std:", SoyRef("stdio") );
-	App.AddChannel( StdioChannel );
+	std::string stdioChannelSpec = "std:";
+	if ( BinaryStdio )
+		stdioChannelSpec += "binaryin,binaryout";
+	
+	gStdioChannel = CreateChannelFromInputString(stdioChannelSpec, SoyRef("stdio") );
+	App.AddChannel( gStdioChannel );
 
+	
+	static bool TestGenericForkChannel = false;
+	if ( TestGenericForkChannel )
+	{
+		auto PwdChannel = CreateChannelFromInputString("fork:pwd", SoyRef("pwd") );
+		App.AddChannel( PwdChannel );
+	}
 	
 	if ( !ChildProcessMode )
 	{
@@ -276,7 +299,7 @@ TPopAppError::Type PopMain(TJobParams& Params)
 			Job.mChannelMeta.mClientRef = SoyRef();
 			gStdioChannel->SendCommand( Job );
 		};
-		gStdioChannel = StdioChannel;
+		gStdioChannel = gStdioChannel;
 		CommandLineChannel->mOnJobSent.AddListener( RelayFunc );
 	}
 	

@@ -84,6 +84,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FB2BFEA71A8E5DCD0025BF04 /* RemoteArray.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RemoteArray.h; path = ../ofxSoylent/src/RemoteArray.h; sourceTree = "<group>"; };
 		FB63E5141A7069C1002C59BE /* SoyJson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SoyJson.cpp; path = ../ofxSoylent/src/SoyJson.cpp; sourceTree = "<group>"; };
 		FB63E5151A7069C1002C59BE /* SoyJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SoyJson.h; path = ../ofxSoylent/src/SoyJson.h; sourceTree = "<group>"; };
 		FB6650C81A55D92100DF0A12 /* SoyDebug.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SoyDebug.mm; path = ../ofxSoylent/src/SoyDebug.mm; sourceTree = "<group>"; };
@@ -288,6 +289,7 @@
 				FB6650C81A55D92100DF0A12 /* SoyDebug.mm */,
 				FB8A06271A2E5A7C0099596C /* SoyDebug.cpp */,
 				FB8A06281A2E5A7C0099596C /* SoyDebug.h */,
+				FB2BFEA71A8E5DCD0025BF04 /* RemoteArray.h */,
 				FB8A06291A2E5A7C0099596C /* SoyEnum.h */,
 				FB8A062A1A2E5A7C0099596C /* SoyEvent.cpp */,
 				FB8A062B1A2E5A7C0099596C /* SoyEvent.h */,
