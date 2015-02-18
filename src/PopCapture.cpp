@@ -129,7 +129,10 @@ void TPopCapture::GetFrame(TJobAndChannel& JobAndChannel)
 	auto FrameMs = Device->GetFrameMs();
 	Reply.mParams.AddParam("fps", FrameRate);
 	Reply.mParams.AddParam("framems", FrameMs );
-	Reply.mParams.AddParam("serial", Device->GetMeta().mSerial );
+	
+	//	gr: send back original serial string, (so client knows where it came from) and real one
+	Reply.mParams.AddParam("serial", Serial );
+	Reply.mParams.AddParam("realserial", Device->GetMeta().mSerial );
 	
 	TChannel& Channel = JobAndChannel;
 	Channel.OnJobCompleted( Reply );
@@ -174,7 +177,7 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 	
 	//	make a lambda to recieve the event
 	auto Client = Job.mChannelMeta;
-	TEventSubscriptionCallback<TVideoDevice> ListenerCallback = [Client,AsMemFile](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
+	TEventSubscriptionCallback<TVideoDevice> ListenerCallback = [Serial,Client,AsMemFile](TEventSubscriptionManager& SubscriptionManager,TVideoDevice& Value)
 	{
 		TJob OutputJob;
 		auto& Reply = OutputJob;
@@ -202,7 +205,8 @@ void TPopCapture::SubscribeNewFrame(TJobAndChannel& JobAndChannel)
 		}
 		
 		//	add other meta
-		Reply.mParams.AddParam("serial", Device.GetSerial() );
+		Reply.mParams.AddParam("serial", Serial );
+		Reply.mParams.AddParam("realserial", Device.GetSerial() );
 	
 		//	add error if present (last frame could be out of date)
 		if ( !Error.str().empty() )
