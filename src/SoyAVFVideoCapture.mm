@@ -362,6 +362,11 @@ bool TVideoDevice_AvFoundation::run(const std::string& Serial,TVideoDeviceParams
 	NSString* SerialString = [NSString stringWithCString:Serial.c_str()
 												encoding:[NSString defaultCStringEncoding]];
     Wrapper.mDevice = [AVCaptureDevice deviceWithUniqueID:SerialString];
+	if ( !Wrapper.mDevice )
+	{
+		Error << "Failed to get AVCapture Device with serial " << Serial << std::endl;
+		return false;
+	}
 	auto* device = Wrapper.mDevice;
 	
 	AVCaptureDeviceInput* _input = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
